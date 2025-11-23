@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import PropertyCard from '@/components/property/PropertyCard';
+import CreatePropertyModal from '@/components/property/CreatePropertyModal';
 import { api, ApiError } from '@/lib/api';
 import { Property, PropertyStats, PaginatedResponse } from '@/types';
 
@@ -13,33 +14,37 @@ export default function DashboardPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [statsData, propertiesData] = await Promise.all([
+        api.get<PropertyStats>('/properties/stats'),
+        api.get<PaginatedResponse<Property>>('/properties?page=1&limit=8'),
+      ]);
+
+      setStats(statsData);
+      setProperties(propertiesData.data);
+    } catch (err) {
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : 'Failed to load dashboard data';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch stats and recent properties in parallel
-        const [statsData, propertiesData] = await Promise.all([
-          api.get<PropertyStats>('/properties/stats'),
-          api.get<PaginatedResponse<Property>>('/properties?page=1&limit=8'),
-        ]);
-
-        setStats(statsData);
-        setProperties(propertiesData.data);
-      } catch (err) {
-        const errorMessage = err instanceof ApiError 
-          ? err.message 
-          : 'Failed to load dashboard data';
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     void fetchData();
   }, []);
+
+  const handleCreateSuccess = () => {
+    void fetchData();
+  };
 
   return (
     <ProtectedRoute>
@@ -94,10 +99,7 @@ export default function DashboardPage() {
                   </Link>
                   <button
                     className="flex items-center justify-center px-6 py-3 border border-transparent rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    onClick={() => {
-                      // TODO: Open Create Property Modal in Task 8
-                      alert('Create Property modal will be implemented in Task 8');
-                    }}
+                    onClick={() => setIsCreateModalOpen(true)}
                   >
                     Create Property
                   </button>
@@ -136,6 +138,12 @@ export default function DashboardPage() {
             </>
           )}
         </div>
+
+        <CreatePropertyModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={handleCreateSuccess}
+        />
       </AppLayout>
     </ProtectedRoute>
   );
