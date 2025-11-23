@@ -14,3 +14,36 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id         String     @id @default(uuid())
+  email      String     @unique
+  password   String
+  firstName  String
+  lastName   String
+  contactNo  String
+  createdAt  DateTime   @default(now())
+  properties Property[]
+}
+
+model Property {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String   @db.Text
+  price        Decimal  @db.Decimal(12, 2)
+  location     String
+  address      String
+  propertyType String
+  bedrooms     Int
+  bathrooms    Int
+  areaSqft     Int
+  status       String   @default("Available")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([location])
+  @@index([status])
+}
