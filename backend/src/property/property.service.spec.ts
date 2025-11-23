@@ -5,7 +5,6 @@ import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
 describe('PropertyService', () => {
   let service: PropertyService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     property: {
@@ -31,7 +30,6 @@ describe('PropertyService', () => {
     }).compile();
 
     service = module.get<PropertyService>(PropertyService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -59,7 +57,10 @@ describe('PropertyService', () => {
       const result = await service.findAll(1, 8);
 
       expect(result).toEqual({
-        properties: mockProperties.map((p) => ({ ...p, price: Number(p.price) })),
+        properties: mockProperties.map((p) => ({
+          ...p,
+          price: Number(p.price),
+        })),
         total: 1,
         page: 1,
         totalPages: 1,
@@ -169,7 +170,10 @@ describe('PropertyService', () => {
 
       const result = await service.update('1', 'user1', updateDto);
 
-      expect(result).toEqual({ ...mockUpdatedProperty, price: Number(mockUpdatedProperty.price) });
+      expect(result).toEqual({
+        ...mockUpdatedProperty,
+        price: Number(mockUpdatedProperty.price),
+      });
       expect(mockPrismaService.property.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: updateDto,

@@ -49,6 +49,5 @@ export class CreatePropertyDto {
   areaSqft: number;
 
   @IsEnum(PropertyStatus)
-  @IsNotEmpty()
   status?: PropertyStatus = PropertyStatus.Available;
 }

@@ -11,6 +11,24 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 export class PropertyService {
   constructor(private prisma: PrismaService) {}
 
+  private async validatePropertyOwnership(id: string, userId: string) {
+    const property = await this.prisma.property.findUnique({
+      where: { id },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to modify this property',
+      );
+    }
+
+    return property;
+  }
+
   async findAll(
     page = 1,
     limit = 8,
@@ -18,6 +36,11 @@ export class PropertyService {
     sortOrder?: 'asc' | 'desc',
     location?: string,
   ) {
+    // Validate pagination parameters
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 8;
+    if (limit > 100) limit = 100; // Max limit to prevent abuse
+
     const skip = (page - 1) * limit;
     const where = location ? { location } : {};
 
@@ -103,20 +126,8 @@ export class PropertyService {
     userId: string,
     updatePropertyDto: UpdatePropertyDto,
   ) {
-    // Check if property exists and belongs to user
-    const property = await this.prisma.property.findUnique({
-      where: { id },
-    });
-
-    if (!property) {
-      throw new NotFoundException('Property not found');
-    }
-
-    if (property.userId !== userId) {
-      throw new ForbiddenException(
-        'You do not have permission to update this property',
-      );
-    }
+    // Validate ownership
+    await this.validatePropertyOwnership(id, userId);
 
     const updatedProperty = await this.prisma.property.update({
       where: { id },
@@ -130,20 +141,8 @@ export class PropertyService {
   }
 
   async remove(id: string, userId: string) {
-    // Check if property exists and belongs to user
-    const property = await this.prisma.property.findUnique({
-      where: { id },
-    });
-
-    if (!property) {
-      throw new NotFoundException('Property not found');
-    }
-
-    if (property.userId !== userId) {
-      throw new ForbiddenException(
-        'You do not have permission to delete this property',
-      );
-    }
+    // Validate ownership
+    await this.validatePropertyOwnership(id, userId);
 
     await this.prisma.property.delete({
       where: { id },
