@@ -24,6 +24,9 @@ export class AuthService {
     }
 
     // Create new user (password stored as plain text)
+    // WARNING: Storing plain text passwords is a security vulnerability.
+    // This is done as per explicit requirements but should NEVER be done in production.
+    // In production, use bcrypt or argon2 for password hashing.
     const user = await this.prisma.user.create({
       data: {
         email,

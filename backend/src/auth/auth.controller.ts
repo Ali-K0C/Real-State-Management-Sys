@@ -7,6 +7,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -48,7 +49,10 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   async getCurrentUser(@Req() req: Request) {
-    const user = await this.authService.validateUser(req.session.userId!);
+    if (!req.session.userId) {
+      throw new UnauthorizedException('Not authenticated');
+    }
+    const user = await this.authService.validateUser(req.session.userId);
     return user;
   }
 
