@@ -62,7 +62,6 @@ export class AuthController {
     return new Promise((resolve, reject) => {
       req.session.destroy((err) => {
         if (err) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           const errorMessage =
             err && typeof err === 'object' && 'message' in err
               ? String(err.message)
