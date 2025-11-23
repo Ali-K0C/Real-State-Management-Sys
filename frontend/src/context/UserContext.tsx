@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from '@/types';
 
 interface UserContextType {
@@ -14,19 +14,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Initial load will be handled by useAuth hook
-    setLoading(false);
-  }, []);
 
   const logout = () => {
     setUser(null);
   };
 
   return (
-    <UserContext.Provider value={{ user, loading, setUser, logout }}>
+    <UserContext.Provider value={{ user, loading: false, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );
