@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/layout/AppLayout';
+import EditPropertyModal from '@/components/property/EditPropertyModal';
 import { api, ApiError } from '@/lib/api';
 import { Property } from '@/types';
 import { useUser } from '@/context/UserContext';
@@ -16,30 +17,36 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const propertyId = params.id as string;
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await api.get<Property>(`/properties/${propertyId}`);
-        setProperty(data);
-      } catch (err) {
-        const errorMessage = err instanceof ApiError 
-          ? err.message 
-          : 'Failed to load property details';
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProperty = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await api.get<Property>(`/properties/${propertyId}`);
+      setProperty(data);
+    } catch (err) {
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : 'Failed to load property details';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (propertyId) {
       void fetchProperty();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
+
+  const handleEditSuccess = () => {
+    void fetchProperty();
+  };
 
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
@@ -170,10 +177,7 @@ export default function PropertyDetailPage() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Management</h3>
                   <div className="flex space-x-4">
                     <button
-                      onClick={() => {
-                        // TODO: Open edit modal in Task 9
-                        alert('Edit Property modal will be implemented in Task 9');
-                      }}
+                      onClick={() => setIsEditModalOpen(true)}
                       className="px-6 py-2 border border-gray-300 rounded-md text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                     >
                       Edit Property
@@ -209,6 +213,15 @@ export default function PropertyDetailPage() {
               Browse all properties
             </Link>
           </div>
+        )}
+
+        {property && isEditModalOpen && (
+          <EditPropertyModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSuccess={handleEditSuccess}
+            property={property}
+          />
         )}
       </div>
     </AppLayout>
