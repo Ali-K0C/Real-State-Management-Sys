@@ -6,6 +6,7 @@ async function main() {
   console.log('Starting seed...');
 
   // Create 10 sample users
+  // Note: Passwords are stored as plain text per project requirements
   const users = await Promise.all([
     prisma.user.create({
       data: {
