@@ -19,11 +19,15 @@ async function handleResponse<T>(response: Response): Promise<T> {
     if (isJson) {
       const errorData = await response.json();
       const message = errorData.message || 'An error occurred';
-      const errors = Array.isArray(errorData.message) 
-        ? errorData.message 
-        : typeof errorData.message === 'string'
-        ? [errorData.message]
-        : ['An error occurred'];
+      
+      let errors: string[];
+      if (Array.isArray(errorData.message)) {
+        errors = errorData.message;
+      } else if (typeof errorData.message === 'string') {
+        errors = [errorData.message];
+      } else {
+        errors = ['An error occurred'];
+      }
       
       throw new ApiError(response.status, message, errors);
     }

@@ -258,7 +258,7 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
                 min="0"
                 required
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.bedrooms ?? ''}
+                value={formData.bedrooms || ''}
                 onChange={handleChange}
                 disabled={loading}
               />
@@ -275,7 +275,7 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
                 min="0"
                 required
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.bathrooms ?? ''}
+                value={formData.bathrooms || ''}
                 onChange={handleChange}
                 disabled={loading}
               />
