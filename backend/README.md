@@ -25,6 +25,46 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Database Setup
+
+This project uses Prisma ORM with Neon PostgreSQL database.
+
+### Prerequisites
+
+1. Create a `.env` file in the backend directory with your database connection:
+```env
+DATABASE_URL="your_postgresql_connection_string"
+```
+
+### Database Commands
+
+```bash
+# Generate Prisma Client
+$ npx prisma generate
+
+# Run migrations
+$ npx prisma migrate dev
+
+# Seed the database with sample data
+$ npx prisma db seed
+
+# Open Prisma Studio to view/edit data
+$ npx prisma studio
+```
+
+### Database Schema
+
+The application includes two main models:
+
+- **User**: Stores user information (email, password, firstName, lastName, contactNo)
+- **Property**: Stores property listings with details like title, description, price, location, property type, bedrooms, bathrooms, area, and status
+
+The seed script includes:
+- 10 sample users with realistic data
+- 40 properties across Pakistani cities (Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad)
+- Various property types (Apartment, House, Commercial, Land)
+- Mix of Available and Sold statuses
+
 ## Project setup
 
 ```bash
