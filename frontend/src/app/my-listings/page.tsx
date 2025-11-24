@@ -132,7 +132,7 @@ export default function MyListingsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <div key={property.id} className="relative">
+                <div key={property.id} className="relative flex flex-col">
                   <PropertyCard property={property} />
                   <div className="mt-4 flex space-x-2">
                     <button
