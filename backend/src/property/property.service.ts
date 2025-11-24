@@ -167,16 +167,16 @@ export class PropertyService {
   async getStats(userId?: string) {
     const totalProperties = await this.prisma.property.count();
 
-    let userListings = 0;
+    let myActiveListings = 0;
     if (userId) {
-      userListings = await this.prisma.property.count({
+      myActiveListings = await this.prisma.property.count({
         where: { userId, status: 'Available' },
       });
     }
 
     return {
       totalProperties,
-      userListings,
+      myActiveListings,
     };
   }
 

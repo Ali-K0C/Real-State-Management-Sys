@@ -255,13 +255,13 @@ describe('PropertyService', () => {
     it('should return stats with user listings if userId provided', async () => {
       mockPrismaService.property.count
         .mockResolvedValueOnce(100) // totalProperties
-        .mockResolvedValueOnce(5); // userListings
+        .mockResolvedValueOnce(5); // myActiveListings
 
       const result = await service.getStats('user1');
 
       expect(result).toEqual({
         totalProperties: 100,
-        userListings: 5,
+        myActiveListings: 5,
       });
     });
 
@@ -272,7 +272,7 @@ describe('PropertyService', () => {
 
       expect(result).toEqual({
         totalProperties: 100,
-        userListings: 0,
+        myActiveListings: 0,
       });
     });
   });
