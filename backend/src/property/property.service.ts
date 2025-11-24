@@ -75,9 +75,10 @@ export class PropertyService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      properties: formattedProperties,
+      data: formattedProperties,  
       total,
       page,
+      limit,  
       totalPages,
     };
   }
@@ -180,21 +181,18 @@ export class PropertyService {
   }
 
   async getLocations() {
-    const properties = await this.prisma.property.groupBy({
-      by: ['location'],
+  const properties = await this.prisma.property.groupBy({
+    by: ['location'],
+    _count: {
+      location: true,
+    },
+    orderBy: {
       _count: {
-        location: true,
+        location: 'desc',
       },
-      orderBy: {
-        _count: {
-          location: 'desc',
-        },
-      },
-    });
+    },
+  });
 
-    return properties.map((item) => ({
-      location: item.location,
-      count: item._count.location,
-    }));
-  }
+  return properties.map((item) => item.location);
+}
 }
