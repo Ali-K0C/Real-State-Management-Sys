@@ -15,35 +15,162 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  LANDLORD
+  ADMIN
+}
+
 model User {
-  id         String     @id @default(uuid())
-  email      String     @unique
-  password   String
-  firstName  String
-  lastName   String
-  contactNo  String
-  createdAt  DateTime   @default(now())
-  properties Property[]
+  id              String               @id @default(uuid())
+  email           String               @unique
+  password        String
+  firstName       String
+  lastName        String
+  contactNo       String
+  role            UserRole             @default(USER)
+  createdAt       DateTime             @default(now())
+  properties      Property[]
+  landlordLeases  RentalLease[]        @relation("LandlordLeases")
+  tenantLeases    RentalLease[]        @relation("TenantLeases")
+  maintenanceReqs MaintenanceRequest[]
+
+  @@index([role])
 }
 
 model Property {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title        String
-  description  String   @db.Text
-  price        Decimal  @db.Decimal(12, 2)
-  location     String
-  address      String
-  propertyType String
-  bedrooms     Int
-  bathrooms    Int
-  areaSqft     Int
-  status       String   @default("Available")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String               @id @default(uuid())
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String               @db.Text
+  price           Decimal              @db.Decimal(12, 2)
+  location        String
+  address         String
+  propertyType    String
+  bedrooms        Int
+  bathrooms       Int
+  areaSqft        Int
+  status          String               @default("Available")
+  isForRent       Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  rentalListing   RentalListing?
+  maintenanceReqs MaintenanceRequest[]
 
   @@index([userId])
   @@index([location])
+  @@index([status])
+  @@index([isForRent])
+}
+
+enum RentalLeaseStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  TERMINATED
+  CANCELED
+}
+
+enum RentPaymentStatus {
+  DUE
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CREDIT_CARD
+  DEBIT_CARD
+  CHECK
+  OTHER
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+model RentalListing {
+  id              String        @id @default(uuid())
+  propertyId      String        @unique
+  property        Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  monthlyRent     Decimal       @db.Decimal(10, 2)
+  securityDeposit Decimal       @db.Decimal(10, 2)
+  availableFrom   DateTime
+  leaseDuration   Int // in months
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  leases          RentalLease[]
+
+  @@index([isActive])
+  @@index([availableFrom])
+}
+
+model RentalLease {
+  id              String            @id @default(uuid())
+  rentalListingId String
+  rentalListing   RentalListing     @relation(fields: [rentalListingId], references: [id], onDelete: Cascade)
+  landlordId      String
+  landlord        User              @relation("LandlordLeases", fields: [landlordId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          User              @relation("TenantLeases", fields: [tenantId], references: [id], onDelete: Cascade)
+  startDate       DateTime
+  endDate         DateTime
+  monthlyRent     Decimal           @db.Decimal(10, 2)
+  securityDeposit Decimal           @db.Decimal(10, 2)
+  paymentDay      Int // day of month (1-31)
+  status          RentalLeaseStatus @default(PENDING)
+  notes           String?           @db.Text
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  payments        RentPayment[]
+
+  @@index([landlordId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model RentPayment {
+  id            String            @id @default(uuid())
+  leaseId       String
+  lease         RentalLease       @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  amount        Decimal           @db.Decimal(10, 2)
+  dueDate       DateTime
+  paidDate      DateTime?
+  status        RentPaymentStatus @default(DUE)
+  paymentMethod PaymentMethod?
+  notes         String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([leaseId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model MaintenanceRequest {
+  id          String            @id @default(uuid())
+  propertyId  String
+  property    Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requestedBy String
+  user        User              @relation(fields: [requestedBy], references: [id], onDelete: Cascade)
+  title       String
+  description String            @db.Text
+  status      MaintenanceStatus @default(PENDING)
+  priority    String            @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  notes       String?           @db.Text
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([propertyId])
+  @@index([requestedBy])
   @@index([status])
 }

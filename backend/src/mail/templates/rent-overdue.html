@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #e74c3c; color: white; padding: 20px; text-align: center; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+        .amount { font-size: 24px; font-weight: bold; color: #e74c3c; }
+        .property-info { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #e74c3c; }
+        .warning { background-color: #fff3cd; padding: 15px; margin: 15px 0; border: 1px solid #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Overdue Rent Payment</h1>
+        </div>
+        <div class="content">
+            <p>Hello {{tenantName}},</p>
+            
+            <div class="warning">
+                <strong>URGENT:</strong> Your rent payment is now overdue.
+            </div>
+            
+            <div class="property-info">
+                <h3>Property Details:</h3>
+                <p><strong>Address:</strong> {{propertyAddress}}</p>
+                <p><strong>Amount Due:</strong> <span class="amount">${{amount}}</span></p>
+                <p><strong>Original Due Date:</strong> {{dueDate}}</p>
+                <p><strong>Days Overdue:</strong> {{daysOverdue}}</p>
+            </div>
+            
+            <p>Please submit your payment immediately to avoid additional late fees and potential consequences.</p>
+            
+            <p>If you are experiencing financial difficulties or have questions about this payment, please contact your landlord as soon as possible:</p>
+            <p><strong>{{landlordName}}</strong><br>
+            Email: {{landlordEmail}}</p>
+            
+            <p><strong>Important:</strong> Continued non-payment may result in further action as outlined in your lease agreement.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from the Rent Tracker System.</p>
+        </div>
+    </div>
+</body>
+</html>
