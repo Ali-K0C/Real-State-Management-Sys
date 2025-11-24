@@ -195,4 +195,32 @@ export class PropertyService {
 
     return properties.map((item) => item.location);
   }
+
+  async buyProperty(id: string, buyerId: string) {
+    const property = await this.prisma.property.findUnique({
+      where: { id },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.userId === buyerId) {
+      throw new ForbiddenException('You cannot buy your own property');
+    }
+
+    if (property.status === 'Sold') {
+      throw new ForbiddenException('Property is already sold');
+    }
+
+    const updatedProperty = await this.prisma.property.update({
+      where: { id },
+      data: { status: 'Sold' },
+    });
+
+    return {
+      ...updatedProperty,
+      price: Number(updatedProperty.price),
+    };
+  }
 }

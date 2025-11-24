@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/layout/AppLayout';
 import EditPropertyModal from '@/components/property/EditPropertyModal';
+import BuyConfirmDialog from '@/components/property/BuyConfirmDialog';
 import { api, ApiError } from '@/lib/api';
 import { Property } from '@/types';
 import { useUser } from '@/context/UserContext';
@@ -18,6 +19,8 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
 
   const propertyId = params.id as string;
 
@@ -48,6 +51,11 @@ export default function PropertyDetailPage() {
     void fetchProperty();
   };
 
+  const handleBuySuccess = (updatedProperty: Property) => {
+    setProperty(updatedProperty);
+    setPurchaseSuccess(true);
+  };
+
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
       return;
@@ -68,6 +76,7 @@ export default function PropertyDetailPage() {
   };
 
   const isOwner = user && property && user.id === property.userId;
+  const canBuy = user && property && !isOwner && property.status === 'Available';
 
   return (
     <AppLayout>
@@ -172,6 +181,31 @@ export default function PropertyDetailPage() {
                 </div>
               )}
 
+              {/* Purchase Success Message */}
+              {purchaseSuccess && (
+                <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Property purchased successfully!
+                </div>
+              )}
+
+              {/* Buy Now Button */}
+              {canBuy && (
+                <div className="border-t border-gray-200 pt-6">
+                  <button
+                    onClick={() => setIsBuyDialogOpen(true)}
+                    className="w-full sm:w-auto px-8 py-3 border border-transparent rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Buy Now
+                  </button>
+                </div>
+              )}
+
               {isOwner && (
                 <div className="border-t border-gray-200 pt-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Management</h3>
@@ -220,6 +254,15 @@ export default function PropertyDetailPage() {
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
             onSuccess={handleEditSuccess}
+            property={property}
+          />
+        )}
+
+        {property && isBuyDialogOpen && (
+          <BuyConfirmDialog
+            isOpen={isBuyDialogOpen}
+            onClose={() => setIsBuyDialogOpen(false)}
+            onSuccess={handleBuySuccess}
             property={property}
           />
         )}
