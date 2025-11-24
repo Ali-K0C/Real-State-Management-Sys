@@ -245,9 +245,7 @@ export class RentalLeasesService {
 
     // Only landlord can update status
     if (lease.landlordId !== userId) {
-      throw new ForbiddenException(
-        'Only the landlord can update lease status',
-      );
+      throw new ForbiddenException('Only the landlord can update lease status');
     }
 
     // Validate status transitions
@@ -377,7 +375,7 @@ export class RentalLeasesService {
     const endDate = new Date(lease.endDate);
     const paymentDay = lease.paymentDay;
 
-    let currentDate = new Date(startDate);
+    const currentDate = new Date(startDate);
 
     // Set to the first payment date
     currentDate.setDate(paymentDay);

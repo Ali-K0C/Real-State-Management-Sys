@@ -39,11 +39,7 @@ export class MailService {
   }
 
   private loadTemplate(templateName: string): string {
-    const templatePath = join(
-      __dirname,
-      'templates',
-      `${templateName}.html`,
-    );
+    const templatePath = join(__dirname, 'templates', `${templateName}.html`);
     return readFileSync(templatePath, 'utf-8');
   }
 

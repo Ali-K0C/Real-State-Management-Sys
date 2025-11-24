@@ -20,7 +20,6 @@ export class LandlordGuard implements CanActivate {
       throw new ForbiddenException('Not authenticated');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });

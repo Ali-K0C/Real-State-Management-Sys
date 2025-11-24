@@ -27,7 +27,6 @@ export class LeaseAccessGuard implements CanActivate {
       throw new ForbiddenException('Lease ID is required');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const lease = await this.prisma.rentalLease.findUnique({
       where: { id: leaseId },
     });

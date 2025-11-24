@@ -295,4 +295,65 @@ describe('PropertyService', () => {
       expect(mockPrismaService.property.groupBy).toHaveBeenCalled();
     });
   });
+
+  describe('buyProperty', () => {
+    it('should successfully purchase a property', async () => {
+      const mockProperty = {
+        id: '1',
+        userId: 'seller1',
+        title: 'Test Property',
+        price: 5000000,
+        status: 'Available',
+      };
+      const mockUpdatedProperty = { ...mockProperty, status: 'Sold' };
+
+      mockPrismaService.property.findUnique.mockResolvedValue(mockProperty);
+      mockPrismaService.property.update.mockResolvedValue(mockUpdatedProperty);
+
+      const result = await service.buyProperty('1', 'buyer1');
+
+      expect(result).toEqual({
+        ...mockUpdatedProperty,
+        price: Number(mockUpdatedProperty.price),
+      });
+      expect(mockPrismaService.property.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: { status: 'Sold' },
+      });
+    });
+
+    it('should throw NotFoundException if property not found', async () => {
+      mockPrismaService.property.findUnique.mockResolvedValue(null);
+
+      await expect(service.buyProperty('999', 'buyer1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw ForbiddenException if user tries to buy own property', async () => {
+      const mockProperty = {
+        id: '1',
+        userId: 'user1',
+        status: 'Available',
+      };
+      mockPrismaService.property.findUnique.mockResolvedValue(mockProperty);
+
+      await expect(service.buyProperty('1', 'user1')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should throw ForbiddenException if property is already sold', async () => {
+      const mockProperty = {
+        id: '1',
+        userId: 'seller1',
+        status: 'Sold',
+      };
+      mockPrismaService.property.findUnique.mockResolvedValue(mockProperty);
+
+      await expect(service.buyProperty('1', 'buyer1')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
 });

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -100,5 +101,17 @@ export class PropertyController {
     const userId = session.userId;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.propertyService.remove(id, userId);
+  }
+
+  @Patch(':id/buy')
+  @UseGuards(AuthGuard)
+  async buyProperty(
+    @Param('id') id: string,
+    @Session() session: Record<string, any>,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const userId = session.userId;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.propertyService.buyProperty(id, userId);
   }
 }
