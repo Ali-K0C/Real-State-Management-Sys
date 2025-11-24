@@ -8,6 +8,9 @@ import { RentalListingsModule } from './rental-listings/rental-listings.module';
 import { RentalLeasesModule } from './rental-leases/rental-leases.module';
 import { RentPaymentsModule } from './rent-payments/rent-payments.module';
 import { LandlordStatsModule } from './landlord-stats/landlord-stats.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
+import { MailModule } from './mail/mail.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { LandlordStatsModule } from './landlord-stats/landlord-stats.module';
     RentalLeasesModule,
     RentPaymentsModule,
     LandlordStatsModule,
+    MaintenanceModule,
+    MailModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
