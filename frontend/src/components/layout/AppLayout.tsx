@@ -44,7 +44,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
-                  Listings
+                  Buy/Sell
+                </Link>
+                <Link
+                  href="/rentals"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    pathname?.startsWith('/rentals')
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
+                >
+                  Rentals
                 </Link>
                 {user && (
                   <Link
@@ -56,6 +66,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     }`}
                   >
                     My Listings
+                  </Link>
+                )}
+                {user && (user.role === 'LANDLORD' || user.role === 'ADMIN') && (
+                  <Link
+                    href="/rental-tracker"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      pathname?.startsWith('/rental-tracker')
+                        ? 'border-blue-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    Rental Tracker
                   </Link>
                 )}
               </div>
