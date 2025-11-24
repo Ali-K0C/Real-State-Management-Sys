@@ -37,6 +37,15 @@ export class RentNotificationScheduler {
       process.env.RENT_UPCOMING_WINDOW_DAYS || '3',
       10,
     );
+
+    // Validate the days ahead value
+    if (isNaN(daysAhead) || daysAhead < 1) {
+      this.logger.error(
+        'Invalid RENT_UPCOMING_WINDOW_DAYS value, using default of 3 days',
+      );
+      return this.rentPaymentsService.findUpcomingPayments(3);
+    }
+
     const upcomingPayments =
       await this.rentPaymentsService.findUpcomingPayments(daysAhead);
 

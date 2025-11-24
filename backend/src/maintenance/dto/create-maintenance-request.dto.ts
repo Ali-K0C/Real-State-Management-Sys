@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsEnum,
 } from 'class-validator';
+import { MaintenancePriority } from '../../types/maintenance.enum';
 
 export class CreateMaintenanceRequestDto {
   @IsNotEmpty()
@@ -20,6 +21,6 @@ export class CreateMaintenanceRequestDto {
   description: string;
 
   @IsOptional()
-  @IsEnum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'])
-  priority?: string;
+  @IsEnum(MaintenancePriority)
+  priority?: MaintenancePriority;
 }

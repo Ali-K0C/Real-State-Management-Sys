@@ -1,5 +1,6 @@
 import { IsOptional, IsEnum, IsString } from 'class-validator';
 import { MaintenanceStatus } from '@prisma/client';
+import { MaintenancePriority } from '../../types/maintenance.enum';
 
 export class UpdateMaintenanceRequestDto {
   @IsOptional()
@@ -11,6 +12,6 @@ export class UpdateMaintenanceRequestDto {
   notes?: string;
 
   @IsOptional()
-  @IsEnum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'])
-  priority?: string;
+  @IsEnum(MaintenancePriority)
+  priority?: MaintenancePriority;
 }

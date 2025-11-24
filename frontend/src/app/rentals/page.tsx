@@ -31,7 +31,14 @@ export default function RentalsPage() {
     setError(null);
 
     try {
-      const params: any = { page, limit };
+      const params: {
+        page: number;
+        limit: number;
+        location?: string;
+        minRent?: number;
+        maxRent?: number;
+        bedrooms?: number;
+      } = { page, limit };
       if (location) params.location = location;
       if (minRent) params.minRent = parseFloat(minRent);
       if (maxRent) params.maxRent = parseFloat(maxRent);
@@ -40,8 +47,9 @@ export default function RentalsPage() {
       const response = await rentalApi.getListings(params);
       setListings(response.data);
       setTotalPages(response.totalPages);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load rental listings');
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message || 'Failed to load rental listings');
     } finally {
       setLoading(false);
     }
