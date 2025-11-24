@@ -75,10 +75,10 @@ export class PropertyService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: formattedProperties,  
+      data: formattedProperties,
       total,
       page,
-      limit,  
+      limit,
       totalPages,
     };
   }
@@ -167,32 +167,32 @@ export class PropertyService {
   async getStats(userId?: string) {
     const totalProperties = await this.prisma.property.count();
 
-    let userListings = 0;
+    let myActiveListings = 0;
     if (userId) {
-      userListings = await this.prisma.property.count({
+      myActiveListings = await this.prisma.property.count({
         where: { userId, status: 'Available' },
       });
     }
 
     return {
       totalProperties,
-      userListings,
+      myActiveListings,
     };
   }
 
   async getLocations() {
-  const properties = await this.prisma.property.groupBy({
-    by: ['location'],
-    _count: {
-      location: true,
-    },
-    orderBy: {
+    const properties = await this.prisma.property.groupBy({
+      by: ['location'],
       _count: {
-        location: 'desc',
+        location: true,
       },
-    },
-  });
+      orderBy: {
+        _count: {
+          location: 'desc',
+        },
+      },
+    });
 
-  return properties.map((item) => item.location);
-}
+    return properties.map((item) => item.location);
+  }
 }

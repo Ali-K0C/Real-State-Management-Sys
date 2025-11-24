@@ -86,9 +86,7 @@ export class RentPaymentsService {
 
     // Only landlord can waive payments
     if (payment.lease.landlordId !== userId) {
-      throw new ForbiddenException(
-        'Only the landlord can waive rent payments',
-      );
+      throw new ForbiddenException('Only the landlord can waive rent payments');
     }
 
     if (payment.status === 'PAID') {

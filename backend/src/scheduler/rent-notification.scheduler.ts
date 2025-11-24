@@ -64,17 +64,14 @@ export class RentNotificationScheduler {
           day: 'numeric',
         });
 
-        await this.mailService.sendRentDueWarning(
-          payment.lease.tenant.email,
-          {
-            tenantName,
-            propertyAddress,
-            amount: payment.amount.toString(),
-            dueDate,
-            landlordName,
-            landlordEmail: payment.lease.landlord.email,
-          },
-        );
+        await this.mailService.sendRentDueWarning(payment.lease.tenant.email, {
+          tenantName,
+          propertyAddress,
+          amount: payment.amount.toString(),
+          dueDate,
+          landlordName,
+          landlordEmail: payment.lease.landlord.email,
+        });
 
         this.logger.log(
           `Sent upcoming rent reminder to ${payment.lease.tenant.email}`,

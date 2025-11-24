@@ -45,12 +45,18 @@ export class MaintenanceController {
         ? (status as MaintenanceStatus)
         : undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return this.maintenanceService.findAll(userId, propertyId, maintenanceStatus);
+    return this.maintenanceService.findAll(
+      userId,
+      propertyId,
+      maintenanceStatus,
+    );
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Session() session: Record<string, any>) {
+  async findOne(
+    @Param('id') id: string,
+    @Session() session: Record<string, any>,
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const userId = session.userId;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
