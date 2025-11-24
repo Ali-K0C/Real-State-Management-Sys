@@ -51,16 +51,26 @@ export class PropertyController {
         ? parseInt(maxAreaStr, 10)
         : undefined;
 
+    // Filter out NaN values
+    const validBedrooms =
+      bedrooms !== undefined && !isNaN(bedrooms) ? bedrooms : undefined;
+    const validBathrooms =
+      bathrooms !== undefined && !isNaN(bathrooms) ? bathrooms : undefined;
+    const validMinArea =
+      minArea !== undefined && !isNaN(minArea) ? minArea : undefined;
+    const validMaxArea =
+      maxArea !== undefined && !isNaN(maxArea) ? maxArea : undefined;
+
     return this.propertyService.findAll(
       page,
       limit,
       sortBy,
       sortOrder,
       location,
-      isNaN(bedrooms as number) ? undefined : bedrooms,
-      isNaN(bathrooms as number) ? undefined : bathrooms,
-      isNaN(minArea as number) ? undefined : minArea,
-      isNaN(maxArea as number) ? undefined : maxArea,
+      validBedrooms,
+      validBathrooms,
+      validMinArea,
+      validMaxArea,
     );
   }
 

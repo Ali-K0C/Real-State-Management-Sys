@@ -66,14 +66,21 @@ export class PropertyService {
       where.bathrooms = { gte: bathrooms }; // Greater than or equal to (e.g., "2+ bathrooms")
     }
 
-    if (minArea !== undefined && minArea !== null) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      where.areaSqft = { ...where.areaSqft, gte: minArea };
-    }
-
-    if (maxArea !== undefined && maxArea !== null) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      where.areaSqft = { ...where.areaSqft, lte: maxArea };
+    // Build areaSqft filter - initialize if either min or max is provided
+    if (
+      (minArea !== undefined && minArea !== null) ||
+      (maxArea !== undefined && maxArea !== null)
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      where.areaSqft = {};
+      if (minArea !== undefined && minArea !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        where.areaSqft.gte = minArea;
+      }
+      if (maxArea !== undefined && maxArea !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        where.areaSqft.lte = maxArea;
+      }
     }
 
     // Build orderBy clause
