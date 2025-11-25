@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PropertyService } from './property.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { ListingType } from './dto/create-property.dto';
 
 describe('PropertyService', () => {
   let service: PropertyService;
@@ -48,6 +49,8 @@ describe('PropertyService', () => {
           title: 'Test Property',
           price: 5000000,
           location: 'Karachi',
+          monthlyRent: null,
+          securityDeposit: null,
         },
       ];
 
@@ -57,12 +60,15 @@ describe('PropertyService', () => {
       const result = await service.findAll(1, 8);
 
       expect(result).toEqual({
-        properties: mockProperties.map((p) => ({
+        data: mockProperties.map((p) => ({
           ...p,
           price: Number(p.price),
+          monthlyRent: null,
+          securityDeposit: null,
         })),
         total: 1,
         page: 1,
+        limit: 8,
         totalPages: 1,
       });
       expect(mockPrismaService.property.findMany).toHaveBeenCalled();
@@ -81,6 +87,91 @@ describe('PropertyService', () => {
         }),
       );
     });
+
+    it('should filter by bedrooms', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(1, 8, undefined, undefined, undefined, 3);
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { bedrooms: { gte: 3 } },
+        }),
+      );
+    });
+
+    it('should filter by bathrooms', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        2,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { bathrooms: { gte: 2 } },
+        }),
+      );
+    });
+
+    it('should filter by area range', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        1000,
+        2000,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { areaSqft: { gte: 1000, lte: 2000 } },
+        }),
+      );
+    });
+
+    it('should filter by multiple criteria', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        'Karachi',
+        3,
+        2,
+        1000,
+        2000,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            location: 'Karachi',
+            bedrooms: { gte: 3 },
+            bathrooms: { gte: 2 },
+            areaSqft: { gte: 1000, lte: 2000 },
+          },
+        }),
+      );
+    });
   });
 
   describe('findOne', () => {
@@ -89,6 +180,8 @@ describe('PropertyService', () => {
         id: '1',
         title: 'Test Property',
         price: 5000000,
+        monthlyRent: null,
+        securityDeposit: null,
         user: {
           firstName: 'John',
           lastName: 'Doe',
@@ -101,7 +194,7 @@ describe('PropertyService', () => {
 
       const result = await service.findOne('1');
 
-      expect(result).toEqual({ ...mockProperty, price: 5000000 });
+      expect(result).toEqual({ ...mockProperty, price: 5000000, monthlyRent: null, securityDeposit: null });
       expect(mockPrismaService.property.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
         include: {
@@ -142,6 +235,8 @@ describe('PropertyService', () => {
       const mockCreatedProperty = {
         id: '1',
         userId: 'user1',
+        monthlyRent: null,
+        securityDeposit: null,
         ...createDto,
       };
 
@@ -149,21 +244,74 @@ describe('PropertyService', () => {
 
       const result = await service.create('user1', createDto);
 
-      expect(result).toEqual({ ...mockCreatedProperty, price: 5000000 });
-      expect(mockPrismaService.property.create).toHaveBeenCalledWith({
-        data: {
-          ...createDto,
-          userId: 'user1',
-        },
+      expect(result).toEqual({ ...mockCreatedProperty, price: 5000000, monthlyRent: null, securityDeposit: null });
+      expect(mockPrismaService.property.create).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if FOR_RENT listing is missing rental fields', async () => {
+      const createDto = {
+        title: 'Rental Property',
+        description: 'A rental property',
+        price: 5000000,
+        location: 'Karachi',
+        address: '123 Main St',
+        propertyType: 'Apartment' as const,
+        bedrooms: 3,
+        bathrooms: 2,
+        areaSqft: 1500,
+        status: 'Available' as const,
+        listingType: ListingType.FOR_RENT,
+      };
+
+      await expect(service.create('user1', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should create FOR_RENT property with rental fields', async () => {
+      const createDto = {
+        title: 'Rental Property',
+        description: 'A rental property',
+        price: 5000000,
+        location: 'Karachi',
+        address: '123 Main St',
+        propertyType: 'Apartment' as const,
+        bedrooms: 3,
+        bathrooms: 2,
+        areaSqft: 1500,
+        status: 'Available' as const,
+        listingType: ListingType.FOR_RENT,
+        monthlyRent: 1500,
+        securityDeposit: 3000,
+        availableFrom: '2024-01-01',
+      };
+
+      const mockCreatedProperty = {
+        id: '1',
+        userId: 'user1',
+        ...createDto,
+        availableFrom: new Date('2024-01-01'),
+      };
+
+      mockPrismaService.property.create.mockResolvedValue(mockCreatedProperty);
+
+      const result = await service.create('user1', createDto);
+
+      expect(result).toEqual({
+        ...mockCreatedProperty,
+        price: 5000000,
+        monthlyRent: 1500,
+        securityDeposit: 3000,
       });
+      expect(mockPrismaService.property.create).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
     it('should update a property if user owns it', async () => {
       const updateDto = { title: 'Updated Title' };
-      const mockProperty = { id: '1', userId: 'user1', title: 'Old Title' };
-      const mockUpdatedProperty = { ...mockProperty, ...updateDto };
+      const mockProperty = { id: '1', userId: 'user1', title: 'Old Title', price: 5000000 };
+      const mockUpdatedProperty = { ...mockProperty, ...updateDto, monthlyRent: null, securityDeposit: null };
 
       mockPrismaService.property.findUnique.mockResolvedValue(mockProperty);
       mockPrismaService.property.update.mockResolvedValue(mockUpdatedProperty);
@@ -173,6 +321,8 @@ describe('PropertyService', () => {
       expect(result).toEqual({
         ...mockUpdatedProperty,
         price: Number(mockUpdatedProperty.price),
+        monthlyRent: null,
+        securityDeposit: null,
       });
       expect(mockPrismaService.property.update).toHaveBeenCalledWith({
         where: { id: '1' },
@@ -233,8 +383,8 @@ describe('PropertyService', () => {
   describe('findByUser', () => {
     it('should return all properties for a user', async () => {
       const mockProperties = [
-        { id: '1', userId: 'user1', title: 'Property 1', price: 5000000 },
-        { id: '2', userId: 'user1', title: 'Property 2', price: 6000000 },
+        { id: '1', userId: 'user1', title: 'Property 1', price: 5000000, monthlyRent: null, securityDeposit: null },
+        { id: '2', userId: 'user1', title: 'Property 2', price: 6000000, monthlyRent: null, securityDeposit: null },
       ];
 
       mockPrismaService.property.findMany.mockResolvedValue(mockProperties);
@@ -242,7 +392,7 @@ describe('PropertyService', () => {
       const result = await service.findByUser('user1');
 
       expect(result).toEqual(
-        mockProperties.map((p) => ({ ...p, price: Number(p.price) })),
+        mockProperties.map((p) => ({ ...p, price: Number(p.price), monthlyRent: null, securityDeposit: null })),
       );
       expect(mockPrismaService.property.findMany).toHaveBeenCalledWith({
         where: { userId: 'user1' },
@@ -288,10 +438,7 @@ describe('PropertyService', () => {
 
       const result = await service.getLocations();
 
-      expect(result).toEqual([
-        { location: 'Karachi', count: 15 },
-        { location: 'Lahore', count: 10 },
-      ]);
+      expect(result).toEqual(['Karachi', 'Lahore']);
       expect(mockPrismaService.property.groupBy).toHaveBeenCalled();
     });
   });
@@ -304,6 +451,8 @@ describe('PropertyService', () => {
         title: 'Test Property',
         price: 5000000,
         status: 'Available',
+        monthlyRent: null,
+        securityDeposit: null,
       };
       const mockUpdatedProperty = { ...mockProperty, status: 'Sold' };
 
@@ -315,6 +464,8 @@ describe('PropertyService', () => {
       expect(result).toEqual({
         ...mockUpdatedProperty,
         price: Number(mockUpdatedProperty.price),
+        monthlyRent: null,
+        securityDeposit: null,
       });
       expect(mockPrismaService.property.update).toHaveBeenCalledWith({
         where: { id: '1' },

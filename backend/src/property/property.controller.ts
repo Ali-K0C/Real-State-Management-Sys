@@ -29,13 +29,43 @@ export class PropertyController {
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
     @Query('location') location?: string,
+    @Query('listingType') listingType?: 'FOR_SALE' | 'FOR_RENT',
   ) {
+    // Parse optional numeric parameters
+    const bedrooms =
+      bedroomsStr !== undefined && bedroomsStr !== ''
+        ? parseInt(bedroomsStr, 10)
+        : undefined;
+    const bathrooms =
+      bathroomsStr !== undefined && bathroomsStr !== ''
+        ? parseInt(bathroomsStr, 10)
+        : undefined;
+    const minArea =
+      minAreaStr !== undefined && minAreaStr !== ''
+        ? parseInt(minAreaStr, 10)
+        : undefined;
+    const maxArea =
+      maxAreaStr !== undefined && maxAreaStr !== ''
+        ? parseInt(maxAreaStr, 10)
+        : undefined;
+
+    // Filter out NaN values
+    const validBedrooms =
+      bedrooms !== undefined && !isNaN(bedrooms) ? bedrooms : undefined;
+    const validBathrooms =
+      bathrooms !== undefined && !isNaN(bathrooms) ? bathrooms : undefined;
+    const validMinArea =
+      minArea !== undefined && !isNaN(minArea) ? minArea : undefined;
+    const validMaxArea =
+      maxArea !== undefined && !isNaN(maxArea) ? maxArea : undefined;
+
     return this.propertyService.findAll(
       page,
       limit,
       sortBy,
       sortOrder,
       location,
+      listingType,
     );
   }
 

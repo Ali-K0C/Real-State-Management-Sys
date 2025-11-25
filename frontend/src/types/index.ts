@@ -27,6 +27,11 @@ export enum PropertyStatus {
   Rented = 'Rented',
 }
 
+export enum ListingType {
+  FOR_SALE = 'FOR_SALE',
+  FOR_RENT = 'FOR_RENT',
+}
+
 export interface Property {
   id: string;
   userId: string;
@@ -41,8 +46,10 @@ export interface Property {
   bathrooms: number;
   areaSqft: number;
   status: PropertyStatus;
-  isForRent?: boolean;
-  rentalListing?: Pick<RentalListing, 'id' | 'monthlyRent' | 'securityDeposit' | 'availableFrom' | 'isActive'>;
+  listingType?: ListingType;
+  monthlyRent?: number | null;
+  securityDeposit?: number | null;
+  availableFrom?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,6 +90,10 @@ export interface CreatePropertyDto {
   bedrooms: number;
   bathrooms: number;
   areaSqft: number;
+  listingType?: ListingType;
+  monthlyRent?: number;
+  securityDeposit?: number;
+  availableFrom?: string;
 }
 
 export interface UpdatePropertyDto extends Partial<CreatePropertyDto> {

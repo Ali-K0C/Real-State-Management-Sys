@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber, IsEnum, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsEnum, Min, IsOptional, IsDateString } from 'class-validator';
 
 enum PropertyType {
   Apartment = 'Apartment',
@@ -10,6 +10,11 @@ enum PropertyType {
 enum PropertyStatus {
   Available = 'Available',
   Sold = 'Sold',
+}
+
+export enum ListingType {
+  FOR_SALE = 'FOR_SALE',
+  FOR_RENT = 'FOR_RENT',
 }
 
 export class CreatePropertyDto {
@@ -49,5 +54,24 @@ export class CreatePropertyDto {
   areaSqft: number;
 
   @IsEnum(PropertyStatus)
+  @IsOptional()
   status?: PropertyStatus = PropertyStatus.Available;
+
+  @IsEnum(ListingType)
+  @IsOptional()
+  listingType?: ListingType = ListingType.FOR_SALE;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  monthlyRent?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  securityDeposit?: number;
+
+  @IsDateString()
+  @IsOptional()
+  availableFrom?: string;
 }

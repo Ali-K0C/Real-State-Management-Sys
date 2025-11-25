@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import Modal from '@/components/ui/Modal';
 import { api, ApiError } from '@/lib/api';
-import { Property, UpdatePropertyDto, PropertyType, PropertyStatus } from '@/types';
+import { Property, UpdatePropertyDto, PropertyType, PropertyStatus, ListingType } from '@/types';
 
 interface EditPropertyModalProps {
   isOpen: boolean;
@@ -24,7 +24,11 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
     bathrooms: property.bathrooms,
     areaSqft: property.areaSqft,
     status: property.status,
+    listingType: property.listingType,
   });
+  const [monthlyRent, setMonthlyRent] = useState(property.monthlyRent?.toString() || '');
+  const [securityDeposit, setSecurityDeposit] = useState(property.securityDeposit?.toString() || '');
+  const [availableFrom, setAvailableFrom] = useState(property.availableFrom?.split('T')[0] || '');
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +45,11 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
         bathrooms: property.bathrooms,
         areaSqft: property.areaSqft,
         status: property.status,
+        listingType: property.listingType,
       });
+      setMonthlyRent(property.monthlyRent?.toString() || '');
+      setSecurityDeposit(property.securityDeposit?.toString() || '');
+      setAvailableFrom(property.availableFrom?.split('T')[0] || '');
       setErrors([]);
     }
   }, [isOpen, property]);
@@ -91,6 +99,16 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
       newErrors.push('Area must be greater than 0');
     }
 
+    // Validate rental fields for FOR_RENT listings
+    if (formData.listingType === ListingType.FOR_RENT) {
+      if (!monthlyRent || parseFloat(monthlyRent) <= 0) {
+        newErrors.push('Monthly Rent is required for rental listings');
+      }
+      if (!securityDeposit || parseFloat(securityDeposit) <= 0) {
+        newErrors.push('Security Deposit is required for rental listings');
+      }
+    }
+
     setErrors(newErrors);
     return newErrors.length === 0;
   };
@@ -105,7 +123,19 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
 
     setLoading(true);
     try {
-      await api.put(`/properties/${property.id}`, formData);
+      // Build payload
+      const payload: UpdatePropertyDto = { ...formData };
+      
+      // Add rental fields only for FOR_RENT listings
+      if (formData.listingType === ListingType.FOR_RENT) {
+        payload.monthlyRent = parseFloat(monthlyRent);
+        payload.securityDeposit = parseFloat(securityDeposit);
+        if (availableFrom) {
+          payload.availableFrom = availableFrom;
+        }
+      }
+
+      await api.put(`/properties/${property.id}`, payload);
       onSuccess();
       onClose();
     } catch (err) {
@@ -213,6 +243,74 @@ export default function EditPropertyModal({ isOpen, onClose, onSuccess, property
               </select>
             </div>
           </div>
+
+          <div>
+            <label htmlFor="edit-listingType" className="block text-sm font-medium text-gray-700 mb-1">
+              Listing Type *
+            </label>
+            <select
+              id="edit-listingType"
+              name="listingType"
+              required
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={formData.listingType || ListingType.FOR_SALE}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value={ListingType.FOR_SALE}>For Sale</option>
+              <option value={ListingType.FOR_RENT}>For Rent</option>
+            </select>
+          </div>
+
+          {formData.listingType === ListingType.FOR_RENT && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md">
+              <div>
+                <label htmlFor="edit-monthlyRent" className="block text-sm font-medium text-gray-700 mb-1">
+                  Monthly Rent ($) *
+                </label>
+                <input
+                  id="edit-monthlyRent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="1500"
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-securityDeposit" className="block text-sm font-medium text-gray-700 mb-1">
+                  Security Deposit ($) *
+                </label>
+                <input
+                  id="edit-securityDeposit"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="3000"
+                  value={securityDeposit}
+                  onChange={(e) => setSecurityDeposit(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-availableFrom" className="block text-sm font-medium text-gray-700 mb-1">
+                  Available From
+                </label>
+                <input
+                  id="edit-availableFrom"
+                  type="date"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={availableFrom}
+                  onChange={(e) => setAvailableFrom(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label htmlFor="edit-location" className="block text-sm font-medium text-gray-700 mb-1">
