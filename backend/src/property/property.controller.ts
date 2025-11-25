@@ -29,6 +29,10 @@ export class PropertyController {
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
     @Query('location') location?: string,
+    @Query('bedrooms') bedroomsStr?: string,
+    @Query('bathrooms') bathroomsStr?: string,
+    @Query('minArea') minAreaStr?: string,
+    @Query('maxArea') maxAreaStr?: string,
     @Query('listingType') listingType?: 'FOR_SALE' | 'FOR_RENT',
   ) {
     // Parse optional numeric parameters
@@ -65,6 +69,10 @@ export class PropertyController {
       sortBy,
       sortOrder,
       location,
+      validBedrooms,
+      validBathrooms,
+      validMinArea,
+      validMaxArea,
       listingType,
     );
   }
