@@ -6,6 +6,10 @@ import AppLayout from '@/components/layout/AppLayout';
 import PropertyCard from '@/components/property/PropertyCard';
 import { api, ApiError } from '@/lib/api';
 import { Property, PaginatedResponse } from '@/types';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function PropertiesContent() {
   const router = useRouter();
@@ -128,8 +132,8 @@ function PropertiesContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Property Listings</h1>
-        <p className="mt-2 text-gray-600">Browse all available properties</p>
+        <h1 className="text-3xl font-bold text-foreground">Property Listings</h1>
+        <p className="mt-2 text-muted-foreground">Browse all available properties</p>
       </div>
 
       {error && (
@@ -138,18 +142,18 @@ function PropertiesContent() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Location filter */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
               Location
             </label>
             <select
               id="location"
               value={location}
               onChange={handleLocationChange}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">All Locations</option>
               {locations.map((loc) => (
@@ -162,14 +166,14 @@ function PropertiesContent() {
 
           {/* Bedrooms filter */}
           <div>
-            <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="bedrooms" className="block text-sm font-medium text-foreground mb-2">
               Bedrooms
             </label>
             <select
               id="bedrooms"
               value={bedrooms}
               onChange={(e) => updateParams({ bedrooms: e.target.value })}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">Any</option>
               <option value="1">1+</option>
@@ -182,14 +186,14 @@ function PropertiesContent() {
 
           {/* Bathrooms filter */}
           <div>
-            <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="bathrooms" className="block text-sm font-medium text-foreground mb-2">
               Bathrooms
             </label>
             <select
               id="bathrooms"
               value={bathrooms}
               onChange={(e) => updateParams({ bathrooms: e.target.value })}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">Any</option>
               <option value="1">1+</option>
@@ -201,33 +205,31 @@ function PropertiesContent() {
 
           {/* Min Area filter */}
           <div>
-            <label htmlFor="minArea" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="minArea" className="block text-sm font-medium text-foreground mb-2">
               Min Area (sqft)
             </label>
-            <input
+            <Input
               type="number"
               id="minArea"
               value={minArea}
               onChange={(e) => updateParams({ minArea: e.target.value })}
               placeholder="Min"
-              min="0"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              min={0}
             />
           </div>
 
           {/* Max Area filter */}
           <div>
-            <label htmlFor="maxArea" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="maxArea" className="block text-sm font-medium text-foreground mb-2">
               Max Area (sqft)
             </label>
-            <input
+            <Input
               type="number"
               id="maxArea"
               value={maxArea}
               onChange={(e) => updateParams({ maxArea: e.target.value })}
               placeholder="Max"
-              min="0"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              min={0}
             />
           </div>
         </div>
@@ -235,58 +237,54 @@ function PropertiesContent() {
         {/* Second row: Sort and results info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Sort By
             </label>
             <div className="flex space-x-2">
-              <button
+              <Button
                 onClick={() => handleSortChange('price')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md ${
-                  sortBy === 'price'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                variant={sortBy === 'price' ? 'default' : 'secondary'}
+                size="sm"
+                className="flex-1"
               >
                 Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleSortChange('createdAt')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md ${
-                  sortBy === 'createdAt'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                variant={sortBy === 'createdAt' ? 'default' : 'secondary'}
+                size="sm"
+                className="flex-1"
               >
                 Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </button>
+              </Button>
             </div>
           </div>
 
           <div className="flex items-end">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Showing {properties.length} of {total} properties
             </div>
           </div>
 
           <div className="flex items-end justify-end">
-            <button
+            <Button
+              variant="link"
               onClick={() => router.push('/properties')}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm"
             >
               Clear all filters
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+        <LoadingSpinner />
       ) : properties.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">No properties found matching your criteria.</p>
-        </div>
+        <EmptyState 
+          title="No properties found" 
+          message="No properties found matching your criteria."
+        />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -297,13 +295,13 @@ function PropertiesContent() {
 
           {totalPages > 1 && (
             <div className="flex justify-center items-center space-x-2">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
-              </button>
+              </Button>
               
               <div className="flex space-x-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
@@ -313,32 +311,29 @@ function PropertiesContent() {
                     (pageNum >= page - 1 && pageNum <= page + 1)
                   ) {
                     return (
-                      <button
+                      <Button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-4 py-2 border rounded-md text-sm font-medium ${
-                          pageNum === page
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-                        }`}
+                        variant={pageNum === page ? 'default' : 'outline'}
+                        size="sm"
                       >
                         {pageNum}
-                      </button>
+                      </Button>
                     );
                   } else if (pageNum === page - 2 || pageNum === page + 2) {
-                    return <span key={pageNum} className="px-2">...</span>;
+                    return <span key={pageNum} className="px-2 text-muted-foreground">...</span>;
                   }
                   return null;
                 })}
               </div>
 
-              <button
+              <Button
+                variant="outline"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
-              </button>
+              </Button>
             </div>
           )}
         </>
@@ -350,11 +345,7 @@ function PropertiesContent() {
 export default function PropertiesPage() {
   return (
     <AppLayout>
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      }>
+      <Suspense fallback={<LoadingSpinner />}>
         <PropertiesContent />
       </Suspense>
     </AppLayout>
