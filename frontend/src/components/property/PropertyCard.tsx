@@ -66,7 +66,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           {/* Show additional monthly rent for rental properties with rental listing */}
           {isForRent && monthlyRent && !isRentListing && (
             <p className="text-sm text-muted-foreground">
-              Rent: Rs {Number(monthlyRent).toLocaleString()}/mo
+              Rent: Rs {Number(monthlyRent).toLocaleString()} / mo
             </p>
           )}
           

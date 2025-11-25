@@ -73,7 +73,7 @@ export default function RentConfirmDialog({
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Monthly Rent:</span>
                       <span className="font-bold text-primary">
-                        Rs {Number(listing.monthlyRent).toLocaleString()}/month
+                        Rs {Number(listing.monthlyRent).toLocaleString()} / month
                       </span>
                     </div>
                     <div className="flex justify-between">
