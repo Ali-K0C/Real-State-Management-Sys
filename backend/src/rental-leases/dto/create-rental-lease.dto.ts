@@ -15,10 +15,6 @@ export class CreateRentalLeaseDto {
   rentalListingId: string;
 
   @IsNotEmpty()
-  @IsUUID()
-  tenantId: string;
-
-  @IsNotEmpty()
   @IsDateString()
   startDate: string;
 

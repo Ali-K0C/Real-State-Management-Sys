@@ -56,17 +56,20 @@ model Property {
 }
 
 model RentalListing {
-  id              String        @id @default(uuid())
-  propertyId      String        @unique
-  monthlyRent     Decimal       @db.Decimal(10, 2)
-  securityDeposit Decimal       @db.Decimal(10, 2)
-  availableFrom   DateTime
-  leaseDuration   Int
-  isActive        Boolean       @default(true)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  leases          RentalLease[]
-  property        Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id                       String        @id @default(uuid())
+  propertyId               String        @unique
+  monthlyRent              Decimal       @db.Decimal(10, 2)
+  securityDeposit          Decimal       @db.Decimal(10, 2)
+  availableFrom            DateTime
+  leaseDuration            Int
+  isActive                 Boolean       @default(true)
+  rentEscalationEnabled    Boolean       @default(false)
+  escalationPercentage     Decimal?      @db.Decimal(5, 2)
+  escalationIntervalMonths Int?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  leases                   RentalLease[]
+  property                 Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([isActive])
   @@index([availableFrom])

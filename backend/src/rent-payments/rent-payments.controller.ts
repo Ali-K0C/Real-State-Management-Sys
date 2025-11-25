@@ -40,6 +40,18 @@ export class RentPaymentsController {
     return this.rentPaymentsService.markPaid(id, userId, dto);
   }
 
+  @Patch(':id/record')
+  async recordPayment(
+    @Param('id') id: string,
+    @Body() dto: RecordPaymentDto,
+    @Session() session: Record<string, any>,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const userId = session.userId;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.rentPaymentsService.recordPayment(id, userId, dto);
+  }
+
   @Patch(':id/waive')
   async waivePayment(
     @Param('id') id: string,

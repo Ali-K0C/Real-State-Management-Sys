@@ -380,7 +380,9 @@ describe('PropertyService', () => {
         securityDeposit: 3000,
       });
       expect(mockPrismaService.property.create).toHaveBeenCalled();
-      expect(mockRentalListingsService.createListingFromProperty).toHaveBeenCalledWith('1');
+      expect(
+        mockRentalListingsService.createListingFromProperty,
+      ).toHaveBeenCalledWith('1');
     });
   });
 

@@ -72,6 +72,42 @@ export class RentPaymentsService {
     });
   }
 
+  async recordPayment(id: string, userId: string, dto: RecordPaymentDto) {
+    const payment = await this.prisma.rentPayment.findUnique({
+      where: { id },
+      include: {
+        lease: true,
+      },
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+
+    // Only landlord can record payments
+    if (payment.lease.landlordId !== userId) {
+      throw new ForbiddenException('Only the landlord can record payments');
+    }
+
+    if (payment.status === 'PAID') {
+      throw new BadRequestException('Payment is already marked as paid');
+    }
+
+    if (payment.status === 'WAIVED') {
+      throw new BadRequestException('Payment has been waived');
+    }
+
+    return this.prisma.rentPayment.update({
+      where: { id },
+      data: {
+        status: 'PAID',
+        paidDate: new Date(),
+        paymentMethod: dto.paymentMethod,
+        notes: dto.notes,
+      },
+    });
+  }
+
   async waivePayment(id: string, userId: string) {
     const payment = await this.prisma.rentPayment.findUnique({
       where: { id },

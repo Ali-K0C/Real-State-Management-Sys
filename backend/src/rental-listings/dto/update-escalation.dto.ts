@@ -1,14 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateRentalListingDto } from './create-rental-listing.dto';
 import { IsBoolean, IsOptional, IsNumber, IsInt, Min } from 'class-validator';
 
-export class UpdateRentalListingDto extends PartialType(
-  CreateRentalListingDto,
-) {
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
-
+export class UpdateEscalationDto {
   @IsOptional()
   @IsBoolean()
   rentEscalationEnabled?: boolean;

@@ -143,9 +143,22 @@ export interface RentalListing {
   availableFrom: string;
   leaseDuration: number;
   isActive: boolean;
+  rentEscalationEnabled?: boolean;
+  escalationPercentage?: number;
+  escalationIntervalMonths?: number;
   createdAt: string;
   updatedAt: string;
   leases?: RentalLease[];
+}
+
+export interface PaymentStats {
+  totalPaid: number;
+  totalDue: number;
+  totalOverdue: number;
+  paidCount: number;
+  dueCount: number;
+  overdueCount: number;
+  totalPayments: number;
 }
 
 export interface RentalLease {
@@ -166,6 +179,7 @@ export interface RentalLease {
   createdAt: string;
   updatedAt: string;
   payments?: RentPayment[];
+  paymentStats?: PaymentStats;
 }
 
 export interface RentPayment {
@@ -235,11 +249,13 @@ export interface CreateRentalListingDto {
 
 export interface UpdateRentalListingDto extends Partial<CreateRentalListingDto> {
   isActive?: boolean;
+  rentEscalationEnabled?: boolean;
+  escalationPercentage?: number;
+  escalationIntervalMonths?: number;
 }
 
 export interface CreateRentalLeaseDto {
   rentalListingId: string;
-  tenantId: string;
   startDate: string;
   endDate: string;
   paymentDay: number;

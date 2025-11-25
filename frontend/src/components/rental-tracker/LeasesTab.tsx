@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { rentalApi } from '@/lib/rental-api';
 import { RentalLease, RentalLeaseStatus } from '@/types';
 
@@ -12,6 +13,7 @@ const STATUS_TABS: { label: string; value: RentalLeaseStatus }[] = [
 ];
 
 export default function LeasesTab() {
+  const router = useRouter();
   const [leases, setLeases] = useState<RentalLease[]>([]);
   const [activeStatus, setActiveStatus] = useState<RentalLeaseStatus>(RentalLeaseStatus.ACTIVE);
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,10 @@ export default function LeasesTab() {
 
   const handleStatusChange = (status: RentalLeaseStatus) => {
     setActiveStatus(status);
+  };
+
+  const handleLeaseClick = (leaseId: string) => {
+    router.push(`/rental-tracker/leases/${leaseId}`);
   };
 
   const getStatusBadgeClass = (status: RentalLeaseStatus) => {
@@ -109,11 +115,18 @@ export default function LeasesTab() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {leases.map((lease) => (
-                <tr key={lease.id} className="hover:bg-gray-50">
+                <tr
+                  key={lease.id}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleLeaseClick(lease.id)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {lease.rentalListing?.property?.title || 'N/A'}
@@ -152,6 +165,17 @@ export default function LeasesTab() {
                     >
                       {lease.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLeaseClick(lease.id);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      View Details →
+                    </button>
                   </td>
                 </tr>
               ))}
