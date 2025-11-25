@@ -51,15 +51,30 @@ export default function MaintenanceTab() {
     }
   };
 
+  const formatStatusDisplay = (status: MaintenanceStatus): string => {
+    switch (status) {
+      case MaintenanceStatus.IN_PROGRESS:
+        return 'In Progress';
+      case MaintenanceStatus.PENDING:
+        return 'Pending';
+      case MaintenanceStatus.COMPLETED:
+        return 'Completed';
+      case MaintenanceStatus.CANCELED:
+        return 'Canceled';
+      default:
+        return status;
+    }
+  };
+
   const getStatusBadgeClass = (status: MaintenanceStatus) => {
     switch (status) {
-      case 'PENDING':
+      case MaintenanceStatus.PENDING:
         return 'bg-amber-100 text-amber-800';
-      case 'IN_PROGRESS':
+      case MaintenanceStatus.IN_PROGRESS:
         return 'bg-blue-100 text-blue-800';
-      case 'COMPLETED':
+      case MaintenanceStatus.COMPLETED:
         return 'bg-green-100 text-green-800';
-      case 'CANCELED':
+      case MaintenanceStatus.CANCELED:
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -155,7 +170,7 @@ export default function MaintenanceTab() {
                     request.status
                   )}`}
                 >
-                  {request.status.replace('_', ' ')}
+                  {formatStatusDisplay(request.status)}
                 </span>
                 <select
                   value={request.status}
@@ -167,7 +182,7 @@ export default function MaintenanceTab() {
                 >
                   {STATUS_OPTIONS.map((status) => (
                     <option key={status} value={status}>
-                      {status.replace('_', ' ')}
+                      {formatStatusDisplay(status)}
                     </option>
                   ))}
                 </select>

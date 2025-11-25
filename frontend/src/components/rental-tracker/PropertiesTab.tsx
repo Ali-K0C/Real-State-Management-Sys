@@ -98,7 +98,7 @@ export default function PropertiesTab() {
 
               <div className="text-sm text-gray-600 space-y-1">
                 <p>
-                  {item.property.bedrooms} bed • {item.property.bathrooms} bath
+                  {item.property.bedrooms} bed{item.property.bedrooms !== 1 ? 's' : ''} • {item.property.bathrooms} bath{item.property.bathrooms !== 1 ? 's' : ''}
                 </p>
                 {item.currentLease && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
