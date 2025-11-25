@@ -218,7 +218,7 @@ export class PropertyService {
     });
 
     // Auto-create RentalListing for FOR_RENT properties
-    if (property.listingType === 'FOR_RENT') {
+    if (property.listingType === ListingType.FOR_RENT) {
       await this.rentalListingsService.createListingFromProperty(property.id);
     }
 

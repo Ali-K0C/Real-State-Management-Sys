@@ -8,6 +8,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRentalListingDto } from './dto/create-rental-listing.dto';
 import { UpdateRentalListingDto } from './dto/update-rental-listing.dto';
 
+// Default lease duration in months when auto-creating rental listings
+const DEFAULT_LEASE_DURATION_MONTHS = 12;
+
 @Injectable()
 export class RentalListingsService {
   constructor(private prisma: PrismaService) {}
@@ -334,7 +337,7 @@ export class RentalListingsService {
         monthlyRent,
         securityDeposit,
         availableFrom,
-        leaseDuration: 12, // Default lease duration of 12 months
+        leaseDuration: DEFAULT_LEASE_DURATION_MONTHS,
       },
       include: {
         property: true,
