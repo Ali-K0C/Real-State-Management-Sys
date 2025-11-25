@@ -24,6 +24,7 @@ export enum PropertyType {
 export enum PropertyStatus {
   Available = 'Available',
   Sold = 'Sold',
+  Rented = 'Rented',
 }
 
 export interface Property {
@@ -40,6 +41,14 @@ export interface Property {
   bathrooms: number;
   areaSqft: number;
   status: PropertyStatus;
+  isForRent?: boolean;
+  rentalListing?: {
+    id: string;
+    monthlyRent: number;
+    securityDeposit: number;
+    availableFrom: string;
+    isActive: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 }

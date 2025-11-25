@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import RentalListingCard from '@/components/rental/RentalListingCard';
 import { rentalApi } from '@/lib/rental-api';
@@ -21,12 +21,11 @@ export default function RentalsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 8;
+  
+  // Filter trigger state to avoid stale closure issues
+  const [filterTrigger, setFilterTrigger] = useState(0);
 
-  useEffect(() => {
-    fetchListings();
-  }, [page]);
-
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -48,17 +47,21 @@ export default function RentalsPage() {
       setListings(response.data);
       setTotalPages(response.totalPages);
     } catch (err) {
-      const error = err as Error;
-      setError(error.message || 'Failed to load rental listings');
+      const fetchError = err as Error;
+      setError(fetchError.message || 'Failed to load rental listings');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, location, minRent, maxRent, bedrooms]);
+
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings, filterTrigger]);
 
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchListings();
+    setFilterTrigger(t => t + 1);
   };
 
   const clearFilters = () => {
@@ -67,7 +70,7 @@ export default function RentalsPage() {
     setMaxRent('');
     setBedrooms('');
     setPage(1);
-    fetchListings();
+    setFilterTrigger(t => t + 1);
   };
 
   return (

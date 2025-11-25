@@ -7,7 +7,23 @@ interface PropertyCardProps {
   property: Property;
 }
 
+function getStatusBadgeClass(status: string): string {
+  switch (status) {
+    case 'Available':
+      return 'bg-green-100 text-green-800';
+    case 'Rented':
+      return 'bg-red-100 text-red-800';
+    case 'Sold':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+}
+
 export default function PropertyCard({ property }: PropertyCardProps) {
+  const isForRent = property.isForRent || (property.rentalListing && property.rentalListing.isActive);
+  const monthlyRent = property.rentalListing?.monthlyRent;
+  
   return (
     <Link href={`/properties/${property.id}`}>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
@@ -16,18 +32,28 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <h3 className="text-xl font-semibold text-gray-900 line-clamp-1">
               {property.title}
             </h3>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-              property.status === 'Available' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-gray-100 text-gray-800'
-            }`}>
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeClass(property.status)}`}>
               {property.status}
             </span>
           </div>
           
-          <p className="text-2xl font-bold text-blue-600 mb-3">
+          <p className="text-2xl font-bold text-blue-600 mb-1">
             ${property.price.toLocaleString()}
           </p>
+          
+          {/* Show monthly rent for rental properties */}
+          {isForRent && monthlyRent && (
+            <p className="text-sm text-gray-600 mb-2">
+              Monthly Rent: ${Number(monthlyRent).toLocaleString()}/mo
+            </p>
+          )}
+          
+          {/* Show rental badge */}
+          {isForRent && (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded mb-2">
+              For Rent
+            </span>
+          )}
           
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
             {property.description}
