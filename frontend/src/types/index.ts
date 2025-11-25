@@ -50,6 +50,8 @@ export interface Property {
   monthlyRent?: number | null;
   securityDeposit?: number | null;
   availableFrom?: string | null;
+  isForRent?: boolean;
+  rentalListing?: RentalListing;
   createdAt: string;
   updatedAt: string;
 }
