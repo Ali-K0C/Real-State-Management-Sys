@@ -85,7 +85,7 @@ export class PropertyService {
       }
     }
 
-    if (listingType) {
+    if (listingType !== undefined && listingType !== null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       where.listingType = listingType;
     }
