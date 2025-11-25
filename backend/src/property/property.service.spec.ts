@@ -88,15 +88,87 @@ describe('PropertyService', () => {
       );
     });
 
-    it('should filter by listingType', async () => {
+    it('should filter by bedrooms', async () => {
       mockPrismaService.property.findMany.mockResolvedValue([]);
       mockPrismaService.property.count.mockResolvedValue(0);
 
-      await service.findAll(1, 8, undefined, undefined, undefined, 'FOR_RENT');
+      await service.findAll(1, 8, undefined, undefined, undefined, 3);
 
       expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { listingType: 'FOR_RENT' },
+          where: { bedrooms: { gte: 3 } },
+        }),
+      );
+    });
+
+    it('should filter by bathrooms', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        2,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { bathrooms: { gte: 2 } },
+        }),
+      );
+    });
+
+    it('should filter by area range', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        1000,
+        2000,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { areaSqft: { gte: 1000, lte: 2000 } },
+        }),
+      );
+    });
+
+    it('should filter by multiple criteria', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        'Karachi',
+        3,
+        2,
+        1000,
+        2000,
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            location: 'Karachi',
+            bedrooms: { gte: 3 },
+            bathrooms: { gte: 2 },
+            areaSqft: { gte: 1000, lte: 2000 },
+          },
         }),
       );
     });

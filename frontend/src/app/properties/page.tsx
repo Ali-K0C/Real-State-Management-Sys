@@ -22,6 +22,10 @@ function PropertiesContent() {
   const location = searchParams.get('location') || '';
   const sortBy = searchParams.get('sortBy') || 'price';
   const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+  const bedrooms = searchParams.get('bedrooms') || '';
+  const bathrooms = searchParams.get('bathrooms') || '';
+  const minArea = searchParams.get('minArea') || '';
+  const maxArea = searchParams.get('maxArea') || '';
   const limit = 12;
 
   useEffect(() => {
@@ -53,6 +57,18 @@ function PropertiesContent() {
         if (location) {
           queryParams.append('location', location);
         }
+        if (bedrooms) {
+          queryParams.append('bedrooms', bedrooms);
+        }
+        if (bathrooms) {
+          queryParams.append('bathrooms', bathrooms);
+        }
+        if (minArea) {
+          queryParams.append('minArea', minArea);
+        }
+        if (maxArea) {
+          queryParams.append('maxArea', maxArea);
+        }
 
         const data = await api.get<PaginatedResponse<Property>>(
           `/properties?${queryParams.toString()}`
@@ -72,7 +88,7 @@ function PropertiesContent() {
     };
 
     void fetchProperties();
-  }, [page, location, sortBy, sortOrder]);
+  }, [page, location, sortBy, sortOrder, bedrooms, bathrooms, minArea, maxArea]);
 
   const updateParams = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -85,7 +101,8 @@ function PropertiesContent() {
       }
     });
 
-    if ('location' in updates || 'sortBy' in updates || 'sortOrder' in updates) {
+    if ('location' in updates || 'sortBy' in updates || 'sortOrder' in updates ||
+        'bedrooms' in updates || 'bathrooms' in updates || 'minArea' in updates || 'maxArea' in updates) {
       params.set('page', '1');
     }
 
@@ -122,7 +139,8 @@ function PropertiesContent() {
       )}
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Location filter */}
           <div>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
               Location
@@ -142,6 +160,80 @@ function PropertiesContent() {
             </select>
           </div>
 
+          {/* Bedrooms filter */}
+          <div>
+            <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-2">
+              Bedrooms
+            </label>
+            <select
+              id="bedrooms"
+              value={bedrooms}
+              onChange={(e) => updateParams({ bedrooms: e.target.value })}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+
+          {/* Bathrooms filter */}
+          <div>
+            <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700 mb-2">
+              Bathrooms
+            </label>
+            <select
+              id="bathrooms"
+              value={bathrooms}
+              onChange={(e) => updateParams({ bathrooms: e.target.value })}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+            </select>
+          </div>
+
+          {/* Min Area filter */}
+          <div>
+            <label htmlFor="minArea" className="block text-sm font-medium text-gray-700 mb-2">
+              Min Area (sqft)
+            </label>
+            <input
+              type="number"
+              id="minArea"
+              value={minArea}
+              onChange={(e) => updateParams({ minArea: e.target.value })}
+              placeholder="Min"
+              min="0"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Max Area filter */}
+          <div>
+            <label htmlFor="maxArea" className="block text-sm font-medium text-gray-700 mb-2">
+              Max Area (sqft)
+            </label>
+            <input
+              type="number"
+              id="maxArea"
+              value={maxArea}
+              onChange={(e) => updateParams({ maxArea: e.target.value })}
+              placeholder="Max"
+              min="0"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Second row: Sort and results info */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Sort By
@@ -174,6 +266,15 @@ function PropertiesContent() {
             <div className="text-sm text-gray-600">
               Showing {properties.length} of {total} properties
             </div>
+          </div>
+
+          <div className="flex items-end justify-end">
+            <button
+              onClick={() => router.push('/properties')}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Clear all filters
+            </button>
           </div>
         </div>
       </div>

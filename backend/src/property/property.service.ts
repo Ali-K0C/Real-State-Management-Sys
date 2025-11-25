@@ -36,7 +36,10 @@ export class PropertyService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
     location?: string,
-    listingType?: 'FOR_SALE' | 'FOR_RENT',
+    bedrooms?: number,
+    bathrooms?: number,
+    minArea?: number,
+    maxArea?: number,
   ) {
     // Validate pagination parameters
     if (page < 1) page = 1;
@@ -44,14 +47,41 @@ export class PropertyService {
     if (limit > 100) limit = 100; // Max limit to prevent abuse
 
     const skip = (page - 1) * limit;
+
+    // Build where clause with all filters
+
     const where: any = {};
+
     if (location) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       where.location = location;
     }
-    if (listingType) {
+
+    if (bedrooms !== undefined && bedrooms !== null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      where.listingType = listingType;
+      where.bedrooms = { gte: bedrooms }; // Greater than or equal to (e.g., "3+ bedrooms")
+    }
+
+    if (bathrooms !== undefined && bathrooms !== null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      where.bathrooms = { gte: bathrooms }; // Greater than or equal to (e.g., "2+ bathrooms")
+    }
+
+    // Build areaSqft filter - initialize if either min or max is provided
+    if (
+      (minArea !== undefined && minArea !== null) ||
+      (maxArea !== undefined && maxArea !== null)
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      where.areaSqft = {};
+      if (minArea !== undefined && minArea !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        where.areaSqft.gte = minArea;
+      }
+      if (maxArea !== undefined && maxArea !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        where.areaSqft.lte = maxArea;
+      }
     }
 
     // Build orderBy clause
@@ -67,12 +97,14 @@ export class PropertyService {
 
     const [properties, total] = await Promise.all([
       this.prisma.property.findMany({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where,
         skip,
         take: limit,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         orderBy,
       }),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       this.prisma.property.count({ where }),
     ]);
 
