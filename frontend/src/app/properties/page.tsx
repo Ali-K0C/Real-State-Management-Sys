@@ -56,6 +56,7 @@ function PropertiesContent() {
           limit: limit.toString(),
           sortBy,
           sortOrder,
+          listingType: 'FOR_SALE',
         });
 
         if (location) {
