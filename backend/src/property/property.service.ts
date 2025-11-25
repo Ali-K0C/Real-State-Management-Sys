@@ -113,7 +113,9 @@ export class PropertyService {
       ...property,
       price: Number(property.price),
       monthlyRent: property.monthlyRent ? Number(property.monthlyRent) : null,
-      securityDeposit: property.securityDeposit ? Number(property.securityDeposit) : null,
+      securityDeposit: property.securityDeposit
+        ? Number(property.securityDeposit)
+        : null,
     }));
 
     const totalPages = Math.ceil(total / limit);
@@ -150,15 +152,22 @@ export class PropertyService {
       ...property,
       price: Number(property.price),
       monthlyRent: property.monthlyRent ? Number(property.monthlyRent) : null,
-      securityDeposit: property.securityDeposit ? Number(property.securityDeposit) : null,
+      securityDeposit: property.securityDeposit
+        ? Number(property.securityDeposit)
+        : null,
     };
   }
 
   async create(userId: string, createPropertyDto: CreatePropertyDto) {
     // Validate rental fields for FOR_RENT listings
     if (createPropertyDto.listingType === ListingType.FOR_RENT) {
-      if (createPropertyDto.monthlyRent == null || createPropertyDto.securityDeposit == null) {
-        throw new BadRequestException('monthlyRent and securityDeposit are required for FOR_RENT listings');
+      if (
+        createPropertyDto.monthlyRent == null ||
+        createPropertyDto.securityDeposit == null
+      ) {
+        throw new BadRequestException(
+          'monthlyRent and securityDeposit are required for FOR_RENT listings',
+        );
       }
     }
 
@@ -199,7 +208,9 @@ export class PropertyService {
       ...property,
       price: Number(property.price),
       monthlyRent: property.monthlyRent ? Number(property.monthlyRent) : null,
-      securityDeposit: property.securityDeposit ? Number(property.securityDeposit) : null,
+      securityDeposit: property.securityDeposit
+        ? Number(property.securityDeposit)
+        : null,
     };
   }
 
@@ -219,8 +230,12 @@ export class PropertyService {
     return {
       ...updatedProperty,
       price: Number(updatedProperty.price),
-      monthlyRent: updatedProperty.monthlyRent ? Number(updatedProperty.monthlyRent) : null,
-      securityDeposit: updatedProperty.securityDeposit ? Number(updatedProperty.securityDeposit) : null,
+      monthlyRent: updatedProperty.monthlyRent
+        ? Number(updatedProperty.monthlyRent)
+        : null,
+      securityDeposit: updatedProperty.securityDeposit
+        ? Number(updatedProperty.securityDeposit)
+        : null,
     };
   }
 
@@ -245,7 +260,9 @@ export class PropertyService {
       ...property,
       price: Number(property.price),
       monthlyRent: property.monthlyRent ? Number(property.monthlyRent) : null,
-      securityDeposit: property.securityDeposit ? Number(property.securityDeposit) : null,
+      securityDeposit: property.securityDeposit
+        ? Number(property.securityDeposit)
+        : null,
     }));
   }
 
@@ -306,8 +323,12 @@ export class PropertyService {
     return {
       ...updatedProperty,
       price: Number(updatedProperty.price),
-      monthlyRent: updatedProperty.monthlyRent ? Number(updatedProperty.monthlyRent) : null,
-      securityDeposit: updatedProperty.securityDeposit ? Number(updatedProperty.securityDeposit) : null,
+      monthlyRent: updatedProperty.monthlyRent
+        ? Number(updatedProperty.monthlyRent)
+        : null,
+      securityDeposit: updatedProperty.securityDeposit
+        ? Number(updatedProperty.securityDeposit)
+        : null,
     };
   }
 }
