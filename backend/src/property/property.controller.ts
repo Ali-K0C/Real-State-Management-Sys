@@ -29,6 +29,7 @@ export class PropertyController {
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
     @Query('location') location?: string,
+    @Query('listingType') listingType?: 'FOR_SALE' | 'FOR_RENT',
   ) {
     return this.propertyService.findAll(
       page,
@@ -36,6 +37,7 @@ export class PropertyController {
       sortBy,
       sortOrder,
       location,
+      listingType,
     );
   }
 
