@@ -137,7 +137,7 @@ export default function PaymentTable({
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                   {payment.paymentMethod
-                    ? payment.paymentMethod.replace('_', ' ')
+                    ? payment.paymentMethod.replace(/_/g, ' ')
                     : '-'}
                 </td>
                 {isLandlord && (

@@ -449,14 +449,17 @@ export class RentalLeasesService {
 
     // Escalation settings
     const escalationEnabled = listing?.rentEscalationEnabled ?? false;
-    const escalationPercentage = listing?.escalationPercentage
-      ? Number(listing.escalationPercentage)
-      : 0;
+    const escalationPercentage =
+      listing?.escalationPercentage !== null &&
+      listing?.escalationPercentage !== undefined
+        ? Number(listing.escalationPercentage)
+        : 0;
     const escalationIntervalMonths = listing?.escalationIntervalMonths ?? 12;
 
     let currentRent = Number(lease.monthlyRent);
     let monthsSinceStart = 0;
     let lastEscalationMonth = 0;
+    const escalationMultiplier = 1 + escalationPercentage / 100;
 
     while (currentDate <= endDate) {
       // Calculate months since start for escalation
@@ -472,7 +475,7 @@ export class RentalLeasesService {
         monthsSinceStart > 0 &&
         monthsSinceStart >= lastEscalationMonth + escalationIntervalMonths
       ) {
-        currentRent = currentRent * (1 + escalationPercentage / 100);
+        currentRent = currentRent * escalationMultiplier;
         lastEscalationMonth = monthsSinceStart;
       }
 
