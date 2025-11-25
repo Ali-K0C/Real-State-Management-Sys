@@ -30,7 +30,6 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link href={isRentListing ? `/rentals/${property.id}` : `/properties/${property.id}`}>
       <Card className="overflow-hidden group hover:shadow-xl transition-shadow duration-200 cursor-pointer h-full">
-        <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 group-hover:from-indigo-200 group-hover:to-indigo-300 transition-all duration-200" />
         <CardContent className="p-4 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={isRentListing ? 'rent' : 'sale'}>
