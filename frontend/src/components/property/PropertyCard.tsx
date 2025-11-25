@@ -7,7 +7,36 @@ interface PropertyCardProps {
   property: Property;
 }
 
+function getStatusBadgeClass(status: string): string {
+  switch (status) {
+    case 'Available':
+      return 'bg-green-100 text-green-800';
+    case 'Rented':
+      return 'bg-red-100 text-red-800';
+    case 'Sold':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+}
+
+/**
+ * Determines if a property is available for rent.
+ * A property is considered for rent if it has an active rental listing.
+ */
+function isPropertyForRent(property: Property): boolean {
+  // Primary check: if there's an active rental listing
+  if (property.rentalListing?.isActive) {
+    return true;
+  }
+  // Fallback: use isForRent flag if no rental listing data is available
+  return Boolean(property.isForRent && !property.rentalListing);
+}
+
 export default function PropertyCard({ property }: PropertyCardProps) {
+  const isForRent = isPropertyForRent(property);
+  const monthlyRent = property.rentalListing?.monthlyRent;
+  
   return (
     <Link href={`/properties/${property.id}`}>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
@@ -46,6 +75,20 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               <>${property.price.toLocaleString()}</>
             )}
           </p>
+          
+          {/* Show monthly rent for rental properties */}
+          {isForRent && monthlyRent && (
+            <p className="text-sm text-gray-600 mb-2">
+              Monthly Rent: ${Number(monthlyRent).toLocaleString()}/mo
+            </p>
+          )}
+          
+          {/* Show rental badge */}
+          {isForRent && (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded mb-2">
+              For Rent
+            </span>
+          )}
           
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
             {property.description}

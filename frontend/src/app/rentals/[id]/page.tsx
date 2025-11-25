@@ -1,39 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
+import RentConfirmDialog from '@/components/rent/RentConfirmDialog';
 import { rentalApi } from '@/lib/rental-api';
+import { useUser } from '@/context/UserContext';
 import type { RentalListing } from '@/types';
 
 export default function RentalDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   const id = params?.id as string;
 
   const [listing, setListing] = useState<RentalListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showRentDialog, setShowRentDialog] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      fetchListing();
-    }
-  }, [id]);
-
-  const fetchListing = async () => {
+  const fetchListing = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await rentalApi.getListing(id);
       setListing(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load rental listing');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load rental listing';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetchListing();
+    }
+  }, [id, fetchListing]);
 
   if (loading) {
     return (
@@ -69,6 +74,15 @@ export default function RentalDetailPage() {
   const property = listing.property!;
   const isOccupied = listing.leases && listing.leases.length > 0;
   const activeLease = isOccupied && listing.leases ? listing.leases[0] : null;
+  
+  // Determine if user can rent: must be logged in, not the owner, and property must be available
+  const isOwner = user && property.userId === user.id;
+  const canRent = user && !isOwner && !isOccupied && property.status === 'Available';
+
+  const handleRent = () => {
+    // Placeholder – will call lease creation in next PR
+    setShowRentDialog(true);
+  };
 
   return (
     <AppLayout>
@@ -226,21 +240,41 @@ export default function RentalDetailPage() {
             )}
 
             {/* Action Button */}
-            {!isOccupied && (
+            {canRent && (
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <button
-                  onClick={() => alert('Lease request feature coming soon!')}
+                  onClick={handleRent}
                   className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Request Lease
+                  Rent This Property
                 </button>
                 <p className="mt-2 text-sm text-gray-500">
                   Contact the landlord to initiate a lease agreement
                 </p>
               </div>
             )}
+            
+            {/* Show message if not logged in */}
+            {!user && !isOccupied && property.status === 'Available' && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <p className="text-gray-600">
+                    Please <a href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">log in</a> to rent this property.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Rent Confirmation Dialog */}
+        {listing && showRentDialog && (
+          <RentConfirmDialog
+            isOpen={showRentDialog}
+            onClose={() => setShowRentDialog(false)}
+            listing={listing}
+          />
+        )}
       </div>
     </AppLayout>
   );

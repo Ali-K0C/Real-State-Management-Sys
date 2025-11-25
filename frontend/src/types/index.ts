@@ -24,6 +24,7 @@ export enum PropertyType {
 export enum PropertyStatus {
   Available = 'Available',
   Sold = 'Sold',
+  Rented = 'Rented',
 }
 
 export enum ListingType {

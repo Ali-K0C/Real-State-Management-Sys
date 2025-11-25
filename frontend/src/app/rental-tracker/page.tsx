@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { rentalApi } from '@/lib/rental-api';
@@ -13,23 +13,24 @@ export default function RentalTrackerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await rentalApi.getLandlordStats();
       setStats(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load statistics');
+    } catch (err: unknown) {
+      const fetchError = err instanceof Error ? err.message : 'Failed to load statistics';
+      setError(fetchError);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   return (
     <ProtectedRoute>
