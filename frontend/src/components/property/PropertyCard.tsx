@@ -35,11 +35,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </div>
           
           <p className="text-2xl font-bold text-blue-600 mb-3">
-            ${property.price.toLocaleString()}
-            {property.listingType === ListingType.FOR_RENT && property.monthlyRent && (
-              <span className="text-sm font-normal text-gray-500 ml-2">
-                (${property.monthlyRent.toLocaleString()}/mo)
-              </span>
+            {property.listingType === ListingType.FOR_RENT && property.monthlyRent ? (
+              <>
+                ${property.monthlyRent.toLocaleString()}/mo
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  (Value: ${property.price.toLocaleString()})
+                </span>
+              </>
+            ) : (
+              <>${property.price.toLocaleString()}</>
             )}
           </p>
           
