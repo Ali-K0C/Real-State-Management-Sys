@@ -42,13 +42,7 @@ export interface Property {
   areaSqft: number;
   status: PropertyStatus;
   isForRent?: boolean;
-  rentalListing?: {
-    id: string;
-    monthlyRent: number;
-    securityDeposit: number;
-    availableFrom: string;
-    isActive: boolean;
-  };
+  rentalListing?: Pick<RentalListing, 'id' | 'monthlyRent' | 'securityDeposit' | 'availableFrom' | 'isActive'>;
   createdAt: string;
   updatedAt: string;
 }

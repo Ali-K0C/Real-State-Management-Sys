@@ -20,8 +20,21 @@ function getStatusBadgeClass(status: string): string {
   }
 }
 
+/**
+ * Determines if a property is available for rent.
+ * A property is considered for rent if it has an active rental listing.
+ */
+function isPropertyForRent(property: Property): boolean {
+  // Primary check: if there's an active rental listing
+  if (property.rentalListing?.isActive) {
+    return true;
+  }
+  // Fallback: use isForRent flag if no rental listing data is available
+  return Boolean(property.isForRent && !property.rentalListing);
+}
+
 export default function PropertyCard({ property }: PropertyCardProps) {
-  const isForRent = property.isForRent || (property.rentalListing && property.rentalListing.isActive);
+  const isForRent = isPropertyForRent(property);
   const monthlyRent = property.rentalListing?.monthlyRent;
   
   return (
