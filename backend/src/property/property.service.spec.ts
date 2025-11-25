@@ -176,6 +176,58 @@ describe('PropertyService', () => {
         }),
       );
     });
+
+    it('should filter by listingType', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'FOR_RENT',
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { listingType: 'FOR_RENT' },
+        }),
+      );
+    });
+
+    it('should filter by listingType combined with other filters', async () => {
+      mockPrismaService.property.findMany.mockResolvedValue([]);
+      mockPrismaService.property.count.mockResolvedValue(0);
+
+      await service.findAll(
+        1,
+        8,
+        undefined,
+        undefined,
+        'Seattle',
+        2,
+        undefined,
+        undefined,
+        undefined,
+        'FOR_RENT',
+      );
+
+      expect(mockPrismaService.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            location: 'Seattle',
+            bedrooms: { gte: 2 },
+            listingType: 'FOR_RENT',
+          },
+        }),
+      );
+    });
   });
 
   describe('findOne', () => {

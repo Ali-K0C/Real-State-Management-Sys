@@ -40,6 +40,7 @@ export class PropertyService {
     bathrooms?: number,
     minArea?: number,
     maxArea?: number,
+    listingType?: 'FOR_SALE' | 'FOR_RENT',
   ) {
     // Validate pagination parameters
     if (page < 1) page = 1;
@@ -82,6 +83,11 @@ export class PropertyService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         where.areaSqft.lte = maxArea;
       }
+    }
+
+    if (listingType) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      where.listingType = listingType;
     }
 
     // Build orderBy clause
