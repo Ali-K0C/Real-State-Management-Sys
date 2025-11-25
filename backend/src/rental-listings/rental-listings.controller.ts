@@ -11,11 +11,11 @@ import {
   Session,
   ParseIntPipe,
   DefaultValuePipe,
-  ParseFloatPipe,
 } from '@nestjs/common';
 import { RentalListingsService } from './rental-listings.service';
 import { CreateRentalListingDto } from './dto/create-rental-listing.dto';
 import { UpdateRentalListingDto } from './dto/update-rental-listing.dto';
+import { UpdateEscalationDto } from './dto/update-escalation.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('rentals/listings')
@@ -76,6 +76,19 @@ export class RentalListingsController {
     const userId = session.userId;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.rentalListingsService.update(id, userId, updateDto);
+  }
+
+  @Patch(':id/escalation')
+  @UseGuards(AuthGuard)
+  async updateEscalation(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateEscalationDto,
+    @Session() session: Record<string, any>,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const userId = session.userId;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.rentalListingsService.updateEscalation(id, userId, updateDto);
   }
 
   @Delete(':id')

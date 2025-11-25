@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRentalListingDto } from './dto/create-rental-listing.dto';
 import { UpdateRentalListingDto } from './dto/update-rental-listing.dto';
+import { UpdateEscalationDto } from './dto/update-escalation.dto';
 
 // Default lease duration in months when auto-creating rental listings
 const DEFAULT_LEASE_DURATION_MONTHS = 12;
@@ -253,6 +254,70 @@ export class RentalListingsService {
     }
     if (updateDto.isActive !== undefined) {
       updateData.isActive = updateDto.isActive;
+    }
+    if (updateDto.rentEscalationEnabled !== undefined) {
+      updateData.rentEscalationEnabled = updateDto.rentEscalationEnabled;
+    }
+    if (updateDto.escalationPercentage !== undefined) {
+      updateData.escalationPercentage = updateDto.escalationPercentage;
+    }
+    if (updateDto.escalationIntervalMonths !== undefined) {
+      updateData.escalationIntervalMonths = updateDto.escalationIntervalMonths;
+    }
+
+    return this.prisma.rentalListing.update({
+      where: { id },
+      data: updateData,
+      include: {
+        property: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                contactNo: true,
+                role: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async updateEscalation(
+    id: string,
+    userId: string,
+    updateDto: UpdateEscalationDto,
+  ) {
+    const listing = await this.prisma.rentalListing.findUnique({
+      where: { id },
+      include: { property: true },
+    });
+
+    if (!listing) {
+      throw new NotFoundException('Rental listing not found');
+    }
+
+    if (listing.property.userId !== userId) {
+      throw new ForbiddenException(
+        'You can only update escalation settings for your own rental listings',
+      );
+    }
+
+    const updateData: any = {};
+
+    if (updateDto.rentEscalationEnabled !== undefined) {
+      updateData.rentEscalationEnabled = updateDto.rentEscalationEnabled;
+    }
+    if (updateDto.escalationPercentage !== undefined) {
+      updateData.escalationPercentage = updateDto.escalationPercentage;
+    }
+    if (updateDto.escalationIntervalMonths !== undefined) {
+      updateData.escalationIntervalMonths = updateDto.escalationIntervalMonths;
     }
 
     return this.prisma.rentalListing.update({

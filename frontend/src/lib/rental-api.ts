@@ -81,11 +81,18 @@ export const rentalApi = {
   markPaymentPaid: (id: string, data: RecordPaymentDto) =>
     api.patch<RentPayment>(`/rentals/payments/${id}/pay`, data),
 
+  recordPayment: (id: string, data: RecordPaymentDto) =>
+    api.patch<RentPayment>(`/rentals/payments/${id}/record`, data),
+
   waivePayment: (id: string) =>
     api.patch<RentPayment>(`/rentals/payments/${id}/waive`, {}),
 
   markPaymentOverdue: (id: string) =>
     api.patch<RentPayment>(`/rentals/payments/${id}/mark-overdue`, {}),
+
+  // Escalation Settings
+  updateEscalation: (id: string, data: { rentEscalationEnabled?: boolean; escalationPercentage?: number; escalationIntervalMonths?: number }) =>
+    api.patch<RentalListing>(`/rentals/listings/${id}/escalation`, data),
 
   // Landlord Stats
   getLandlordStats: () =>
