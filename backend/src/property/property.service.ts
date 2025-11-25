@@ -3,14 +3,21 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto, ListingType } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
+import { RentalListingsService } from '../rental-listings/rental-listings.service';
 
 @Injectable()
 export class PropertyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => RentalListingsService))
+    private rentalListingsService: RentalListingsService,
+  ) {}
 
   private async validatePropertyOwnership(id: string, userId: string) {
     const property = await this.prisma.property.findUnique({
@@ -209,6 +216,11 @@ export class PropertyService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       data,
     });
+
+    // Auto-create RentalListing for FOR_RENT properties
+    if (property.listingType === ListingType.FOR_RENT) {
+      await this.rentalListingsService.createListingFromProperty(property.id);
+    }
 
     return {
       ...property,

@@ -8,6 +8,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRentalListingDto } from './dto/create-rental-listing.dto';
 import { UpdateRentalListingDto } from './dto/update-rental-listing.dto';
 
+// Default lease duration in months when auto-creating rental listings
+const DEFAULT_LEASE_DURATION_MONTHS = 12;
+
 @Injectable()
 export class RentalListingsService {
   constructor(private prisma: PrismaService) {}
@@ -295,6 +298,50 @@ export class RentalListingsService {
     return this.prisma.rentalListing.update({
       where: { id },
       data: { isActive: false },
+    });
+  }
+
+  /**
+   * Creates a RentalListing from an existing property (internal method).
+   * Used when a FOR_RENT property is created.
+   */
+  async createListingFromProperty(propertyId: string) {
+    // Check if rental listing already exists for this property
+    const existingListing = await this.prisma.rentalListing.findUnique({
+      where: { propertyId },
+    });
+
+    if (existingListing) {
+      return existingListing;
+    }
+
+    // Get property details
+    const property = await this.prisma.property.findUnique({
+      where: { id: propertyId },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    // Create rental listing with default values from property
+    const monthlyRent = property.monthlyRent ? Number(property.monthlyRent) : 0;
+    const securityDeposit = property.securityDeposit
+      ? Number(property.securityDeposit)
+      : 0;
+    const availableFrom = property.availableFrom || new Date();
+
+    return this.prisma.rentalListing.create({
+      data: {
+        propertyId,
+        monthlyRent,
+        securityDeposit,
+        availableFrom,
+        leaseDuration: DEFAULT_LEASE_DURATION_MONTHS,
+      },
+      include: {
+        property: true,
+      },
     });
   }
 }
