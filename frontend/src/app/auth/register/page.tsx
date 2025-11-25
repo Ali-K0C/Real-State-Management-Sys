@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -112,66 +115,55 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
-              sign in to existing account
-            </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100 px-4 py-12">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+          <p className="text-center text-sm text-muted-foreground">
+            Enter your details to get started
           </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {errors.length > 0 && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
-                    {errors.length === 1 ? 'Error' : 'There were errors with your submission'}
-                  </h3>
-                  <div className="mt-2 text-sm text-red-700">
-                    <ul className="list-disc list-inside space-y-1">
-                      {errors.map((error, index) => (
-                        <li key={index}>{error}</li>
-                      ))}
-                    </ul>
-                  </div>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {errors.length > 0 && (
+              <div className="rounded-md bg-red-50 p-4 border border-red-200">
+                <h3 className="text-sm font-medium text-red-800">
+                  {errors.length === 1 ? 'Error' : 'There were errors with your submission'}
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc list-inside space-y-1">
+                    {errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            </div>
-          )}
-          <div className="space-y-4">
+            )}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <label htmlFor="firstName" className="text-sm font-medium">
                   First Name
                 </label>
-                <input
+                <Input
                   id="firstName"
                   name="firstName"
                   type="text"
                   required
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="John"
                   value={formData.firstName}
                   onChange={handleChange}
                   disabled={loading}
                 />
               </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <label htmlFor="lastName" className="text-sm font-medium">
                   Last Name
                 </label>
-                <input
+                <Input
                   id="lastName"
                   name="lastName"
                   type="text"
                   required
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={handleChange}
@@ -179,86 +171,83 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
               </label>
-              <input
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="john@example.com"
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="contactNo" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="contactNo" className="text-sm font-medium">
                 Contact Number
               </label>
-              <input
+              <Input
                 id="contactNo"
                 name="contactNo"
                 type="tel"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="+1234567890"
                 value={formData.contactNo}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Minimum 6 characters"
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="text-sm font-medium">
                 Confirm Password
               </label>
-              <input
+              <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </div>
-        </form>
-      </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create Account'}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-2 text-center text-sm">
+          <p className="text-muted-foreground">
+            Already have an account?{' '}
+            <Link href="/auth/login" className="text-primary hover:underline font-medium">
+              Sign In
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

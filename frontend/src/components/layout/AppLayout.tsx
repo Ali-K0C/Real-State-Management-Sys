@@ -4,6 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,11 +26,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="bg-white border-b border-gray-200 shadow-sm">
+      <nav className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <Link href="/" className="flex items-center text-xl font-bold text-gray-900">
+              <Link href="/" className="flex items-center text-xl font-bold text-foreground">
                 Real Estate
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -30,8 +38,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   href="/dashboard"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                     isActive('/dashboard')
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                   }`}
                 >
                   Dashboard
@@ -40,8 +48,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   href="/properties"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                     isActive('/properties')
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                   }`}
                 >
                   Buy/Sell
@@ -50,8 +58,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   href="/rentals"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                     pathname?.startsWith('/rentals')
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                   }`}
                 >
                   Rentals
@@ -61,8 +69,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     href="/my-listings"
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                       isActive('/my-listings')
-                        ? 'border-blue-500 text-gray-900'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        ? 'border-primary text-foreground'
+                        : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                     }`}
                   >
                     My Listings
@@ -73,8 +81,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     href="/rental-tracker"
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                       pathname?.startsWith('/rental-tracker')
-                        ? 'border-blue-500 text-gray-900'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        ? 'border-primary text-foreground'
+                        : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
                     }`}
                   >
                     Rental Tracker
@@ -84,30 +92,50 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </div>
             <div className="flex items-center">
               {user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-700">
-                    {user.firstName} {user.lastName}
-                  </span>
-                  <button
-                    onClick={logout}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Logout
-                  </button>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <span className="text-sm font-medium">
+                        {user.firstName} {user.lastName}
+                      </span>
+                      <svg
+                        className="h-4 w-4 opacity-50"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem className="text-muted-foreground text-xs" disabled>
+                      {user.email}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="cursor-pointer">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-listings" className="cursor-pointer">My Listings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <div className="flex items-center space-x-4">
-                  <Link
-                    href="/auth/login"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                  >
-                    Login
+                  <Link href="/auth/login">
+                    <Button variant="ghost" size="sm">
+                      Login
+                    </Button>
                   </Link>
-                  <Link
-                    href="/auth/register"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    Register
+                  <Link href="/auth/register">
+                    <Button size="sm">
+                      Register
+                    </Button>
                   </Link>
                 </div>
               )}

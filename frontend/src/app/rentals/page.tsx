@@ -5,6 +5,10 @@ import AppLayout from '@/components/layout/AppLayout';
 import RentalListingCard from '@/components/rental/RentalListingCard';
 import { rentalApi } from '@/lib/rental-api';
 import type { RentalListing } from '@/types';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function RentalsPage() {
   const [listings, setListings] = useState<RentalListing[]>([]);
@@ -77,69 +81,66 @@ export default function RentalsPage() {
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Rental Properties
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Find your perfect rental home
           </p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border mb-8">
           <form onSubmit={handleFilter} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">
                   Location
                 </label>
-                <input
+                <Input
                   type="text"
                   id="location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="City or area"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
               <div>
-                <label htmlFor="minRent" className="block text-sm font-medium text-gray-700 mb-1">
-                  Min Rent ($)
+                <label htmlFor="minRent" className="block text-sm font-medium text-foreground mb-1">
+                  Min Rent (Rs)
                 </label>
-                <input
+                <Input
                   type="number"
                   id="minRent"
                   value={minRent}
                   onChange={(e) => setMinRent(e.target.value)}
                   placeholder="Min"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
               <div>
-                <label htmlFor="maxRent" className="block text-sm font-medium text-gray-700 mb-1">
-                  Max Rent ($)
+                <label htmlFor="maxRent" className="block text-sm font-medium text-foreground mb-1">
+                  Max Rent (Rs)
                 </label>
-                <input
+                <Input
                   type="number"
                   id="maxRent"
                   value={maxRent}
                   onChange={(e) => setMaxRent(e.target.value)}
                   placeholder="Max"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
               <div>
-                <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="bedrooms" className="block text-sm font-medium text-foreground mb-1">
                   Bedrooms
                 </label>
                 <select
                   id="bedrooms"
                   value={bedrooms}
                   onChange={(e) => setBedrooms(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="">Any</option>
                   <option value="1">1+</option>
@@ -152,19 +153,12 @@ export default function RentalsPage() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
+              <Button type="submit">
                 Apply Filters
-              </button>
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
+              </Button>
+              <Button type="button" variant="secondary" onClick={clearFilters}>
                 Clear
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -178,15 +172,12 @@ export default function RentalsPage() {
 
         {/* Loading State */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-            <p className="mt-4 text-gray-600">Loading listings...</p>
-          </div>
+          <LoadingSpinner />
         ) : listings.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-            <p className="text-gray-600 text-lg">No rental listings found</p>
-            <p className="text-gray-500 text-sm mt-2">Try adjusting your filters</p>
-          </div>
+          <EmptyState 
+            title="No rental listings found" 
+            message="Try adjusting your filters"
+          />
         ) : (
           <>
             {/* Listings Grid */}
@@ -199,23 +190,23 @@ export default function RentalsPage() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2">
-                <button
+                <Button
+                  variant="outline"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
-                </button>
-                <span className="px-4 py-2 text-gray-700">
+                </Button>
+                <span className="px-4 py-2 text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
-                <button
+                <Button
+                  variant="outline"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             )}
           </>

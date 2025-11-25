@@ -2,22 +2,11 @@
 
 import Link from 'next/link';
 import { Property, ListingType } from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface PropertyCardProps {
   property: Property;
-}
-
-function getStatusBadgeClass(status: string): string {
-  switch (status) {
-    case 'Available':
-      return 'bg-green-100 text-green-800';
-    case 'Rented':
-      return 'bg-red-100 text-red-800';
-    case 'Sold':
-      return 'bg-gray-100 text-gray-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
 }
 
 /**
@@ -36,81 +25,58 @@ function isPropertyForRent(property: Property): boolean {
 export default function PropertyCard({ property }: PropertyCardProps) {
   const isForRent = isPropertyForRent(property);
   const monthlyRent = property.rentalListing?.monthlyRent;
+  const isRentListing = property.listingType === ListingType.FOR_RENT;
   
   return (
-    <Link href={`/properties/${property.id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex-1">
-              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mb-2 ${
-                property.listingType === ListingType.FOR_RENT 
-                  ? 'bg-purple-100 text-purple-800' 
-                  : 'bg-blue-100 text-blue-800'
-              }`}>
-                {property.listingType === ListingType.FOR_RENT ? 'For Rent' : 'For Sale'}
-              </span>
-              <h3 className="text-xl font-semibold text-gray-900 line-clamp-1">
-                {property.title}
-              </h3>
-            </div>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-              property.status === 'Available' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-gray-100 text-gray-800'
-            }`}>
-              {property.status}
-            </span>
+    <Link href={isRentListing ? `/rentals/${property.id}` : `/properties/${property.id}`}>
+      <Card className="overflow-hidden group hover:shadow-xl transition-shadow duration-200 cursor-pointer h-full">
+        <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 group-hover:from-indigo-200 group-hover:to-indigo-300 transition-all duration-200" />
+        <CardContent className="p-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={isRentListing ? 'rent' : 'sale'}>
+              {isRentListing ? 'For Rent' : 'For Sale'}
+            </Badge>
+            {property.status === 'Available' && (
+              <Badge variant="success">Available</Badge>
+            )}
+            {property.status === 'Sold' && (
+              <Badge variant="destructive">Sold</Badge>
+            )}
+            {property.status === 'Rented' && (
+              <Badge className="bg-red-600 text-white hover:bg-red-700">Rented</Badge>
+            )}
           </div>
           
-          <p className="text-2xl font-bold text-blue-600 mb-3">
-            {property.listingType === ListingType.FOR_RENT && property.monthlyRent ? (
-              <>
-                ${property.monthlyRent.toLocaleString()}/mo
-                <span className="text-sm font-normal text-gray-500 ml-2">
-                  (Value: ${property.price.toLocaleString()})
-                </span>
-              </>
+          <h3 className="text-lg font-semibold text-foreground truncate">
+            {property.title}
+          </h3>
+          
+          <p className="text-sm text-muted-foreground truncate">
+            {property.location}
+          </p>
+          
+          <p className="text-xl font-bold text-primary">
+            {isRentListing && property.monthlyRent ? (
+              <>Rs {Number(property.monthlyRent).toLocaleString()} / mo</>
             ) : (
-              <>${property.price.toLocaleString()}</>
+              <>Rs {Number(property.price).toLocaleString()}</>
             )}
           </p>
           
-          {/* Show monthly rent for rental properties */}
-          {isForRent && monthlyRent && (
-            <p className="text-sm text-gray-600 mb-2">
-              Monthly Rent: ${Number(monthlyRent).toLocaleString()}/mo
+          {/* Show additional monthly rent for rental properties with rental listing */}
+          {isForRent && monthlyRent && !isRentListing && (
+            <p className="text-sm text-muted-foreground">
+              Rent: Rs {Number(monthlyRent).toLocaleString()}/mo
             </p>
           )}
           
-          {/* Show rental badge */}
-          {isForRent && (
-            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded mb-2">
-              For Rent
-            </span>
-          )}
-          
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-            {property.description}
-          </p>
-          
-          <div className="space-y-2 text-sm text-gray-700">
-            <div className="flex items-center">
-              <span className="font-medium">Type:</span>
-              <span className="ml-2">{property.propertyType}</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium">Location:</span>
-              <span className="ml-2">{property.location}</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span>{property.bedrooms} bed</span>
-              <span>{property.bathrooms} bath</span>
-              <span>{property.areaSqft} sqft</span>
-            </div>
+          <div className="flex text-xs text-muted-foreground gap-4 pt-2 border-t border-border">
+            <span>{property.bedrooms} bd</span>
+            <span>{property.bathrooms} ba</span>
+            <span>{property.areaSqft} sqft</span>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }
