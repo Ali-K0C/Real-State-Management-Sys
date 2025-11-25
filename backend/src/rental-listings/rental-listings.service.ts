@@ -297,4 +297,48 @@ export class RentalListingsService {
       data: { isActive: false },
     });
   }
+
+  /**
+   * Creates a RentalListing from an existing property (internal method).
+   * Used when a FOR_RENT property is created.
+   */
+  async createListingFromProperty(propertyId: string) {
+    // Check if rental listing already exists for this property
+    const existingListing = await this.prisma.rentalListing.findUnique({
+      where: { propertyId },
+    });
+
+    if (existingListing) {
+      return existingListing;
+    }
+
+    // Get property details
+    const property = await this.prisma.property.findUnique({
+      where: { id: propertyId },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    // Create rental listing with default values from property
+    const monthlyRent = property.monthlyRent ? Number(property.monthlyRent) : 0;
+    const securityDeposit = property.securityDeposit
+      ? Number(property.securityDeposit)
+      : 0;
+    const availableFrom = property.availableFrom || new Date();
+
+    return this.prisma.rentalListing.create({
+      data: {
+        propertyId,
+        monthlyRent,
+        securityDeposit,
+        availableFrom,
+        leaseDuration: 12, // Default lease duration of 12 months
+      },
+      include: {
+        property: true,
+      },
+    });
+  }
 }

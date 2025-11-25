@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PropertyService } from './property.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RentalListingsService } from '../rental-listings/rental-listings.service';
 import {
   NotFoundException,
   ForbiddenException,
@@ -23,6 +24,10 @@ describe('PropertyService', () => {
     },
   };
 
+  const mockRentalListingsService = {
+    createListingFromProperty: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -30,6 +35,10 @@ describe('PropertyService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: RentalListingsService,
+          useValue: mockRentalListingsService,
         },
       ],
     }).compile();
@@ -360,6 +369,7 @@ describe('PropertyService', () => {
       };
 
       mockPrismaService.property.create.mockResolvedValue(mockCreatedProperty);
+      mockRentalListingsService.createListingFromProperty.mockResolvedValue({});
 
       const result = await service.create('user1', createDto);
 
@@ -370,6 +380,7 @@ describe('PropertyService', () => {
         securityDeposit: 3000,
       });
       expect(mockPrismaService.property.create).toHaveBeenCalled();
+      expect(mockRentalListingsService.createListingFromProperty).toHaveBeenCalledWith('1');
     });
   });
 
