@@ -37,6 +37,10 @@ model Property {
   bathrooms       Int
   areaSqft        Int
   status          String               @default("Available")
+  listingType     ListingType          @default(FOR_SALE)
+  monthlyRent     Decimal?             @db.Decimal(12, 2)
+  securityDeposit Decimal?             @db.Decimal(12, 2)
+  availableFrom   DateTime?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   isForRent       Boolean              @default(false)
@@ -48,6 +52,7 @@ model Property {
   @@index([location])
   @@index([status])
   @@index([isForRent])
+  @@index([listingType])
 }
 
 model RentalListing {
@@ -165,4 +170,9 @@ enum MaintenanceStatus {
   IN_PROGRESS
   COMPLETED
   CANCELED
+}
+
+enum ListingType {
+  FOR_SALE
+  FOR_RENT
 }

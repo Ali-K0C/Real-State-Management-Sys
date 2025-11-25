@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Modal from '@/components/ui/Modal';
 import { api, ApiError } from '@/lib/api';
-import { CreatePropertyDto, PropertyType } from '@/types';
+import { CreatePropertyDto, PropertyType, ListingType } from '@/types';
 
 interface CreatePropertyModalProps {
   isOpen: boolean;
@@ -22,7 +22,11 @@ export default function CreatePropertyModal({ isOpen, onClose, onSuccess }: Crea
     bedrooms: 1,
     bathrooms: 1,
     areaSqft: 0,
+    listingType: ListingType.FOR_SALE,
   });
+  const [monthlyRent, setMonthlyRent] = useState('');
+  const [securityDeposit, setSecurityDeposit] = useState('');
+  const [availableFrom, setAvailableFrom] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -71,6 +75,16 @@ export default function CreatePropertyModal({ isOpen, onClose, onSuccess }: Crea
       newErrors.push('Area must be greater than 0');
     }
 
+    // Validate rental fields for FOR_RENT listings
+    if (formData.listingType === ListingType.FOR_RENT) {
+      if (!monthlyRent || parseFloat(monthlyRent) <= 0) {
+        newErrors.push('Monthly Rent is required for rental listings');
+      }
+      if (!securityDeposit || parseFloat(securityDeposit) <= 0) {
+        newErrors.push('Security Deposit is required for rental listings');
+      }
+    }
+
     setErrors(newErrors);
     return newErrors.length === 0;
   };
@@ -85,7 +99,19 @@ export default function CreatePropertyModal({ isOpen, onClose, onSuccess }: Crea
 
     setLoading(true);
     try {
-      await api.post('/properties', formData);
+      // Build payload
+      const payload: CreatePropertyDto = { ...formData };
+      
+      // Add rental fields only for FOR_RENT listings
+      if (formData.listingType === ListingType.FOR_RENT) {
+        payload.monthlyRent = parseFloat(monthlyRent);
+        payload.securityDeposit = parseFloat(securityDeposit);
+        if (availableFrom) {
+          payload.availableFrom = availableFrom;
+        }
+      }
+
+      await api.post('/properties', payload);
       
       // Reset form
       setFormData({
@@ -98,7 +124,11 @@ export default function CreatePropertyModal({ isOpen, onClose, onSuccess }: Crea
         bedrooms: 1,
         bathrooms: 1,
         areaSqft: 0,
+        listingType: ListingType.FOR_SALE,
       });
+      setMonthlyRent('');
+      setSecurityDeposit('');
+      setAvailableFrom('');
       
       onSuccess();
       onClose();
@@ -210,6 +240,74 @@ export default function CreatePropertyModal({ isOpen, onClose, onSuccess }: Crea
               </select>
             </div>
           </div>
+
+          <div>
+            <label htmlFor="listingType" className="block text-sm font-medium text-gray-700 mb-1">
+              Listing Type *
+            </label>
+            <select
+              id="listingType"
+              name="listingType"
+              required
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={formData.listingType}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value={ListingType.FOR_SALE}>For Sale</option>
+              <option value={ListingType.FOR_RENT}>For Rent</option>
+            </select>
+          </div>
+
+          {formData.listingType === ListingType.FOR_RENT && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md">
+              <div>
+                <label htmlFor="monthlyRent" className="block text-sm font-medium text-gray-700 mb-1">
+                  Monthly Rent ($) *
+                </label>
+                <input
+                  id="monthlyRent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="1500"
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="securityDeposit" className="block text-sm font-medium text-gray-700 mb-1">
+                  Security Deposit ($) *
+                </label>
+                <input
+                  id="securityDeposit"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="3000"
+                  value={securityDeposit}
+                  onChange={(e) => setSecurityDeposit(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-1">
+                  Available From
+                </label>
+                <input
+                  id="availableFrom"
+                  type="date"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={availableFrom}
+                  onChange={(e) => setAvailableFrom(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">

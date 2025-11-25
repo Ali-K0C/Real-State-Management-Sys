@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Property } from '@/types';
+import { Property, ListingType } from '@/types';
 
 interface PropertyCardProps {
   property: Property;
@@ -13,9 +13,18 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full">
         <div className="p-6">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-semibold text-gray-900 line-clamp-1">
-              {property.title}
-            </h3>
+            <div className="flex-1">
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mb-2 ${
+                property.listingType === ListingType.FOR_RENT 
+                  ? 'bg-purple-100 text-purple-800' 
+                  : 'bg-blue-100 text-blue-800'
+              }`}>
+                {property.listingType === ListingType.FOR_RENT ? 'For Rent' : 'For Sale'}
+              </span>
+              <h3 className="text-xl font-semibold text-gray-900 line-clamp-1">
+                {property.title}
+              </h3>
+            </div>
             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
               property.status === 'Available' 
                 ? 'bg-green-100 text-green-800' 
@@ -26,7 +35,16 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </div>
           
           <p className="text-2xl font-bold text-blue-600 mb-3">
-            ${property.price.toLocaleString()}
+            {property.listingType === ListingType.FOR_RENT && property.monthlyRent ? (
+              <>
+                ${property.monthlyRent.toLocaleString()}/mo
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  (Value: ${property.price.toLocaleString()})
+                </span>
+              </>
+            ) : (
+              <>${property.price.toLocaleString()}</>
+            )}
           </p>
           
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
