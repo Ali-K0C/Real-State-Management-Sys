@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RentalLeaseStatus } from '@prisma/client';
 
 @Injectable()
 export class LandlordStatsService {
@@ -210,6 +211,50 @@ export class LandlordStatsService {
         nextDueAmount: nextDuePayment?.amount || null,
         nextDueStatus: nextDuePayment?.status || null,
       };
+    });
+  }
+
+  async getLeases(landlordId: string, status?: RentalLeaseStatus) {
+    const where: { landlordId: string; status?: RentalLeaseStatus } = {
+      landlordId,
+    };
+    if (status) {
+      where.status = status;
+    }
+
+    return this.prisma.rentalLease.findMany({
+      where,
+      include: {
+        rentalListing: {
+          include: {
+            property: true,
+          },
+        },
+        tenant: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            contactNo: true,
+            createdAt: true,
+          },
+        },
+        payments: {
+          where: {
+            status: {
+              in: ['DUE', 'OVERDUE'],
+            },
+          },
+          orderBy: {
+            dueDate: 'asc',
+          },
+          take: 1,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 }

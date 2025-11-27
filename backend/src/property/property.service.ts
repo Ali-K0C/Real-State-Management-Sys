@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto, ListingType } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { RentalListingsService } from '../rental-listings/rental-listings.service';
+import { ListingType as PrismaListingType } from '@prisma/client';
 
 @Injectable()
 export class PropertyService {
@@ -238,12 +239,33 @@ export class PropertyService {
     updatePropertyDto: UpdatePropertyDto,
   ) {
     // Validate ownership
-    await this.validatePropertyOwnership(id, userId);
+    const property = await this.validatePropertyOwnership(id, userId);
+
+    // Check if listingType is changing
+    const isChangingToForSale =
+      updatePropertyDto.listingType === ListingType.FOR_SALE &&
+      property.listingType === PrismaListingType.FOR_RENT;
+
+    const isChangingToForRent =
+      updatePropertyDto.listingType === ListingType.FOR_RENT &&
+      property.listingType === PrismaListingType.FOR_SALE;
 
     const updatedProperty = await this.prisma.property.update({
       where: { id },
       data: updatePropertyDto,
     });
+
+    // Delete RentalListing when converting from FOR_RENT to FOR_SALE
+    if (isChangingToForSale) {
+      await this.prisma.rentalListing.deleteMany({
+        where: { propertyId: id },
+      });
+    }
+
+    // Create RentalListing when converting from FOR_SALE to FOR_RENT
+    if (isChangingToForRent) {
+      await this.rentalListingsService.createListingFromProperty(id);
+    }
 
     return {
       ...updatedProperty,
