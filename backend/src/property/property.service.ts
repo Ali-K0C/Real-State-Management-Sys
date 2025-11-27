@@ -238,12 +238,34 @@ export class PropertyService {
     updatePropertyDto: UpdatePropertyDto,
   ) {
     // Validate ownership
-    await this.validatePropertyOwnership(id, userId);
+    const property = await this.validatePropertyOwnership(id, userId);
+
+    // Check if listingType is changing
+    // Note: Both DTO ListingType and Prisma ListingType have same string values
+    const isChangingToForSale =
+      updatePropertyDto.listingType === ListingType.FOR_SALE &&
+      property.listingType === ListingType.FOR_RENT;
+
+    const isChangingToForRent =
+      updatePropertyDto.listingType === ListingType.FOR_RENT &&
+      property.listingType === ListingType.FOR_SALE;
 
     const updatedProperty = await this.prisma.property.update({
       where: { id },
       data: updatePropertyDto,
     });
+
+    // Delete RentalListing when converting from FOR_RENT to FOR_SALE
+    if (isChangingToForSale) {
+      await this.prisma.rentalListing.deleteMany({
+        where: { propertyId: id },
+      });
+    }
+
+    // Create RentalListing when converting from FOR_SALE to FOR_RENT
+    if (isChangingToForRent) {
+      await this.rentalListingsService.createListingFromProperty(id);
+    }
 
     return {
       ...updatedProperty,

@@ -60,9 +60,10 @@ export const rentalApi = {
     api.get<RentalLease>(`/rentals/leases/${id}`),
 
   getLandlordLeases: (status?: RentalLeaseStatus) => {
-    const params = new URLSearchParams({ landlord: 'true' });
+    const params = new URLSearchParams();
     if (status) params.append('status', status);
-    return api.get<RentalLease[]>(`/rentals/leases?${params.toString()}`);
+    const query = params.toString();
+    return api.get<RentalLease[]>(`/rentals/landlord/leases${query ? `?${query}` : ''}`);
   },
 
   getTenantLeases: (status?: RentalLeaseStatus) => {
