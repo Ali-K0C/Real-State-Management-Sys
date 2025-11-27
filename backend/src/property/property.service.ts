@@ -240,14 +240,15 @@ export class PropertyService {
     // Validate ownership
     const property = await this.validatePropertyOwnership(id, userId);
 
-    // Check if listingType is changing using string comparison (both enums have same string values)
+    // Check if listingType is changing
+    // Note: Both DTO ListingType and Prisma ListingType have same string values
     const isChangingToForSale =
-      updatePropertyDto.listingType === 'FOR_SALE' &&
-      property.listingType === 'FOR_RENT';
+      updatePropertyDto.listingType === ListingType.FOR_SALE &&
+      property.listingType === ListingType.FOR_RENT;
 
     const isChangingToForRent =
-      updatePropertyDto.listingType === 'FOR_RENT' &&
-      property.listingType === 'FOR_SALE';
+      updatePropertyDto.listingType === ListingType.FOR_RENT &&
+      property.listingType === ListingType.FOR_SALE;
 
     const updatedProperty = await this.prisma.property.update({
       where: { id },
