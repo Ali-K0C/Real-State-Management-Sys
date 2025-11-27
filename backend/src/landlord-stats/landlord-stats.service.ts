@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { RentalLeaseStatus } from '@prisma/client';
+import { RentalLeaseStatus, RentPaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class LandlordStatsService {
@@ -243,7 +243,7 @@ export class LandlordStatsService {
         payments: {
           where: {
             status: {
-              in: ['DUE', 'OVERDUE'],
+              in: [RentPaymentStatus.DUE, RentPaymentStatus.OVERDUE],
             },
           },
           orderBy: {

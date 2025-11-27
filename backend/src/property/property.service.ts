@@ -10,7 +10,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto, ListingType } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { RentalListingsService } from '../rental-listings/rental-listings.service';
-import { ListingType as PrismaListingType } from '@prisma/client';
 
 @Injectable()
 export class PropertyService {
@@ -241,14 +240,14 @@ export class PropertyService {
     // Validate ownership
     const property = await this.validatePropertyOwnership(id, userId);
 
-    // Check if listingType is changing
+    // Check if listingType is changing using string comparison (both enums have same string values)
     const isChangingToForSale =
-      updatePropertyDto.listingType === ListingType.FOR_SALE &&
-      property.listingType === PrismaListingType.FOR_RENT;
+      updatePropertyDto.listingType === 'FOR_SALE' &&
+      property.listingType === 'FOR_RENT';
 
     const isChangingToForRent =
-      updatePropertyDto.listingType === ListingType.FOR_RENT &&
-      property.listingType === PrismaListingType.FOR_SALE;
+      updatePropertyDto.listingType === 'FOR_RENT' &&
+      property.listingType === 'FOR_SALE';
 
     const updatedProperty = await this.prisma.property.update({
       where: { id },
