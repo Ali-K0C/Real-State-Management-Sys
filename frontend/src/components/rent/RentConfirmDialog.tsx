@@ -33,6 +33,7 @@ export default function RentConfirmDialog({
   const [startDate, setStartDate] = useState('');
   const [durationMonths, setDurationMonths] = useState(listing.leaseDuration || 12);
   const [paymentDay, setPaymentDay] = useState(1);
+  const [notes, setNotes] = useState('');
 
   // Calculate end date based on start date and duration
   const calculateEndDate = (start: string, months: number): string => {
@@ -55,6 +56,7 @@ export default function RentConfirmDialog({
         startDate: new Date(startDate).toISOString(),
         endDate: new Date(endDate).toISOString(),
         paymentDay,
+        notes: notes || undefined,
       });
 
       setStep('success');
@@ -74,6 +76,7 @@ export default function RentConfirmDialog({
     setStartDate('');
     setDurationMonths(listing.leaseDuration || 12);
     setPaymentDay(1);
+    setNotes('');
     onClose();
   };
 
@@ -195,6 +198,20 @@ export default function RentConfirmDialog({
                   <p className="mt-1 text-xs text-gray-500">
                     Rent will be due on this day each month
                   </p>
+                </div>
+
+                <div>
+                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                    Notes (optional)
+                  </label>
+                  <textarea
+                    id="notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Any additional notes or special requests..."
+                  />
                 </div>
 
                 {startDate && (
