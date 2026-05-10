@@ -4,9 +4,9 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
 import PropertyCard from '@/components/property/PropertyCard';
+import { PropertyCardSkeletonGrid } from '@/components/ui/Skeleton';
 import { api, ApiError } from '@/lib/api';
 import { Property, PaginatedResponse } from '@/types';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,31 +130,32 @@ function PropertiesContent() {
     updateParams({ page: newPage.toString() });
   };
 
+  const hasActiveFilters = location || bedrooms || bathrooms || minArea || maxArea;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Property Listings</h1>
-        <p className="mt-2 text-muted-foreground">Browse all available properties</p>
+      <div className="mb-8 animate-fade-in-down">
+        <h1 className="text-3xl font-bold text-gray-900">Property Listings</h1>
+        <p className="mt-2 text-gray-500">Browse all available properties for sale</p>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-fade-in">
           {error}
         </div>
       )}
 
-      <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8 shadow-sm animate-fade-in-up">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Location filter */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
               Location
             </label>
             <select
               id="location"
               value={location}
               onChange={handleLocationChange}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             >
               <option value="">All Locations</option>
               {locations.map((loc) => (
@@ -165,16 +166,15 @@ function PropertiesContent() {
             </select>
           </div>
 
-          {/* Bedrooms filter */}
           <div>
-            <label htmlFor="bedrooms" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-2">
               Bedrooms
             </label>
             <select
               id="bedrooms"
               value={bedrooms}
               onChange={(e) => updateParams({ bedrooms: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             >
               <option value="">Any</option>
               <option value="1">1+</option>
@@ -185,16 +185,15 @@ function PropertiesContent() {
             </select>
           </div>
 
-          {/* Bathrooms filter */}
           <div>
-            <label htmlFor="bathrooms" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700 mb-2">
               Bathrooms
             </label>
             <select
               id="bathrooms"
               value={bathrooms}
               onChange={(e) => updateParams({ bathrooms: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             >
               <option value="">Any</option>
               <option value="1">1+</option>
@@ -204,9 +203,8 @@ function PropertiesContent() {
             </select>
           </div>
 
-          {/* Min Area filter */}
           <div>
-            <label htmlFor="minArea" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="minArea" className="block text-sm font-medium text-gray-700 mb-2">
               Min Area (sqft)
             </label>
             <Input
@@ -216,12 +214,12 @@ function PropertiesContent() {
               onChange={(e) => updateParams({ minArea: e.target.value })}
               placeholder="Min"
               min={0}
+              className="h-11"
             />
           </div>
 
-          {/* Max Area filter */}
           <div>
-            <label htmlFor="maxArea" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="maxArea" className="block text-sm font-medium text-gray-700 mb-2">
               Max Area (sqft)
             </label>
             <Input
@@ -231,30 +229,30 @@ function PropertiesContent() {
               onChange={(e) => updateParams({ maxArea: e.target.value })}
               placeholder="Max"
               min={0}
+              className="h-11"
             />
           </div>
         </div>
 
-        {/* Second row: Sort and results info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 pt-5 border-t border-gray-100">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Sort By
             </label>
             <div className="flex space-x-2">
               <Button
                 onClick={() => handleSortChange('price')}
-                variant={sortBy === 'price' ? 'default' : 'secondary'}
+                variant={sortBy === 'price' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className={`flex-1 h-10 ${sortBy === 'price' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'}`}
               >
                 Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
               </Button>
               <Button
                 onClick={() => handleSortChange('createdAt')}
-                variant={sortBy === 'createdAt' ? 'default' : 'secondary'}
+                variant={sortBy === 'createdAt' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className={`flex-1 h-10 ${sortBy === 'createdAt' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'}`}
               >
                 Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
               </Button>
@@ -262,44 +260,51 @@ function PropertiesContent() {
           </div>
 
           <div className="flex items-end">
-            <div className="text-sm text-muted-foreground">
-              Showing {properties.length} of {total} properties
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-medium text-gray-900">{properties.length}</span> of <span className="font-medium text-gray-900">{total}</span> properties
             </div>
           </div>
 
           <div className="flex items-end justify-end">
-            <Button
-              variant="link"
-              onClick={() => router.push('/properties')}
-              className="text-sm"
-            >
-              Clear all filters
-            </Button>
+            {hasActiveFilters && (
+              <Button
+                variant="link"
+                onClick={() => router.push('/properties')}
+                className="text-emerald-600 hover:text-emerald-700 text-sm font-medium h-10"
+              >
+                Clear all filters
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
       {loading ? (
-        <LoadingSpinner />
+        <PropertyCardSkeletonGrid count={12} />
       ) : properties.length === 0 ? (
-        <EmptyState 
-          title="No properties found" 
-          message="No properties found matching your criteria."
-        />
+        <div className="animate-fade-in">
+          <EmptyState 
+            title="No properties found" 
+            message="No properties found matching your criteria. Try adjusting your filters."
+          />
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+            {properties.map((property, index) => (
+              <div key={property.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 8)}`}>
+                <PropertyCard property={property} />
+              </div>
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2">
+            <div className="flex justify-center items-center space-x-2 animate-fade-in-up">
               <Button
                 variant="outline"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
+                className="border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
               >
                 Previous
               </Button>
@@ -317,12 +322,13 @@ function PropertiesContent() {
                         onClick={() => handlePageChange(pageNum)}
                         variant={pageNum === page ? 'default' : 'outline'}
                         size="sm"
+                        className={pageNum === page ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'}
                       >
                         {pageNum}
                       </Button>
                     );
                   } else if (pageNum === page - 2 || pageNum === page + 2) {
-                    return <span key={pageNum} className="px-2 text-muted-foreground">...</span>;
+                    return <span key={pageNum} className="px-2 text-gray-400">...</span>;
                   }
                   return null;
                 })}
@@ -332,6 +338,7 @@ function PropertiesContent() {
                 variant="outline"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page === totalPages}
+                className="border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
               >
                 Next
               </Button>
@@ -346,7 +353,7 @@ function PropertiesContent() {
 export default function PropertiesPage() {
   return (
     <AppLayout>
-      <Suspense fallback={<LoadingSpinner />}>
+      <Suspense fallback={<PropertyCardSkeletonGrid count={12} />}>
         <PropertiesContent />
       </Suspense>
     </AppLayout>

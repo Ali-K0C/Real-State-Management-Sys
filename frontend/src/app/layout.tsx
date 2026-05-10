@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { UserProvider } from "@/context/UserContext";
+import { ToastProvider, ToastContainer } from "@/context/ToastContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <UserProvider>
-          {children}
+          <ToastProvider>
+            {children}
+            <ToastContainer />
+          </ToastProvider>
         </UserProvider>
       </body>
     </html>

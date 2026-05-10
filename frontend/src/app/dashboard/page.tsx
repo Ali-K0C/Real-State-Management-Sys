@@ -8,10 +8,9 @@ import PropertyCard from '@/components/property/PropertyCard';
 import CreatePropertyModal from '@/components/property/CreatePropertyModal';
 import { api, ApiError } from '@/lib/api';
 import { Property, PropertyStats, PaginatedResponse } from '@/types';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { StatsCardSkeletonGrid } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<PropertyStats | null>(null);
@@ -54,70 +53,91 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <AppLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-            <p className="mt-2 text-muted-foreground">Welcome to your real estate dashboard</p>
+          <div className="mb-8 animate-fade-in-down">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-2 text-gray-500">Welcome back! Here&apos;s your real estate overview</p>
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-fade-in">
               {error}
             </div>
           )}
 
           {loading ? (
-            <LoadingSpinner />
+            <div className="space-y-8">
+              <StatsCardSkeletonGrid count={2} />
+            </div>
           ) : (
             <>
-              {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Total Properties</h3>
-                    <p className="text-3xl font-bold text-primary">{stats?.totalProperties || 0}</p>
-                    <p className="text-sm text-muted-foreground mt-2">Available in the system</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">My Active Listings</h3>
-                    <p className="text-3xl font-bold text-green-600">{stats?.myActiveListings || 0}</p>
-                    <p className="text-sm text-muted-foreground mt-2">Your property listings</p>
-                  </CardContent>
-                </Card>
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg shadow-emerald-500/25 card-hover animate-fade-in-up stagger-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-emerald-100 text-sm font-medium mb-1">Total Properties</p>
+                      <p className="text-4xl font-bold">{stats?.totalProperties || 0}</p>
+                      <p className="text-emerald-100 text-sm mt-2">Available in the system</p>
+                    </div>
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg shadow-green-500/25 card-hover animate-fade-in-up stagger-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm font-medium mb-1">My Active Listings</p>
+                      <p className="text-4xl font-bold">{stats?.myActiveListings || 0}</p>
+                      <p className="text-green-100 text-sm mt-2">Your property listings</p>
+                    </div>
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Quick Actions */}
-              <Card className="mb-8">
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <Link href="/properties">
-                      <Button variant="outline" className="w-full h-12">
-                        Browse Listings
-                      </Button>
-                    </Link>
-                    <Link href="/my-listings">
-                      <Button variant="outline" className="w-full h-12">
-                        My Listings
-                      </Button>
-                    </Link>
-                    <Button
-                      className="w-full h-12"
-                      onClick={() => setIsCreateModalOpen(true)}
-                    >
-                      Create Property
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Properties */}
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-foreground">Recent Properties</h2>
+              <div className="bg-white rounded-2xl border border-border p-6 mb-8 shadow-sm animate-fade-in-up stagger-3">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <Link href="/properties">
-                    <Button variant="link" className="text-sm">
+                    <Button variant="outline" className="w-full h-12 border-2 hover:border-emerald-500 hover:bg-emerald-50 transition-all">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      Browse Listings
+                    </Button>
+                  </Link>
+                  <Link href="/my-listings">
+                    <Button variant="outline" className="w-full h-12 border-2 hover:border-emerald-500 hover:bg-emerald-50 transition-all">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                      </svg>
+                      My Listings
+                    </Button>
+                  </Link>
+                  <Button
+                    className="w-full h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg shadow-emerald-600/25 btn-hover"
+                    onClick={() => setIsCreateModalOpen(true)}
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Property
+                  </Button>
+                </div>
+              </div>
+
+              <div className="animate-fade-in-up stagger-4">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Recent Properties</h2>
+                  <Link href="/properties">
+                    <Button variant="link" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
                       View All →
                     </Button>
                   </Link>
@@ -129,8 +149,10 @@ export default function DashboardPage() {
                   />
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {properties.map((property) => (
-                      <PropertyCard key={property.id} property={property} />
+                    {properties.map((property, index) => (
+                      <div key={property.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 8)}`}>
+                        <PropertyCard property={property} />
+                      </div>
                     ))}
                   </div>
                 )}

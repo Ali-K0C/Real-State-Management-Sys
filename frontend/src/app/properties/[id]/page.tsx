@@ -6,6 +6,7 @@ import Link from 'next/link';
 import AppLayout from '@/components/layout/AppLayout';
 import EditPropertyModal from '@/components/property/EditPropertyModal';
 import BuyConfirmDialog from '@/components/property/BuyConfirmDialog';
+import { DetailPageSkeleton } from '@/components/ui/Skeleton';
 import { api, ApiError } from '@/lib/api';
 import { Property } from '@/types';
 import { useUser } from '@/context/UserContext';
@@ -44,7 +45,6 @@ export default function PropertyDetailPage() {
     if (propertyId) {
       void fetchProperty();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
 
   const handleEditSuccess = () => {
@@ -81,122 +81,151 @@ export default function PropertyDetailPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link href="/properties" className="text-blue-600 hover:text-blue-800">
-            ← Back to Listings
+        <div className="mb-6 animate-fade-in-down">
+          <Link href="/properties" className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Listings
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-fade-in">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
+          <DetailPageSkeleton />
         ) : property ? (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in-up">
             <div className="p-8">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
-                  <div className="flex items-center space-x-4 text-gray-600">
-                    <span className="flex items-center">
-                      <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  <h1 className="text-3xl font-bold text-gray-900 mb-3">{property.title}</h1>
+                  <div className="flex items-center gap-4 text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       {property.location}
                     </span>
                     <span className={`px-3 py-1 text-sm font-medium rounded-full ${
                       property.status === 'Available' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'bg-emerald-100 text-emerald-700' 
+                        : property.status === 'Sold'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-gray-100 text-gray-700'
                     }`}>
                       {property.status}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-600">
-                    ${property.price.toLocaleString()}
+                  <div className="text-4xl font-bold text-emerald-600">
+                    Rs {Number(property.price).toLocaleString()}
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-b border-gray-200 py-6 mb-6">
+              <div className="border-t border-b border-gray-100 py-6 mb-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div>
-                    <div className="text-sm text-gray-600 mb-1">Type</div>
-                    <div className="text-lg font-semibold">{property.propertyType}</div>
+                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                    <div className="text-sm text-gray-500 mb-1">Type</div>
+                    <div className="text-lg font-semibold text-gray-900">{property.propertyType}</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-600 mb-1">Bedrooms</div>
-                    <div className="text-lg font-semibold">{property.bedrooms}</div>
+                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                    <div className="text-sm text-gray-500 mb-1">Bedrooms</div>
+                    <div className="text-lg font-semibold text-gray-900">{property.bedrooms}</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-600 mb-1">Bathrooms</div>
-                    <div className="text-lg font-semibold">{property.bathrooms}</div>
+                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                    <div className="text-sm text-gray-500 mb-1">Bathrooms</div>
+                    <div className="text-lg font-semibold text-gray-900">{property.bathrooms}</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-600 mb-1">Area</div>
-                    <div className="text-lg font-semibold">{property.areaSqft} sqft</div>
+                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                    <div className="text-sm text-gray-500 mb-1">Area</div>
+                    <div className="text-lg font-semibold text-gray-900">{property.areaSqft} sqft</div>
                   </div>
                 </div>
               </div>
 
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
-                <p className="text-gray-700 whitespace-pre-wrap">{property.description}</p>
+                <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
+                <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">{property.description}</p>
               </div>
 
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Address</h2>
-                <p className="text-gray-700">{property.address}</p>
+                <h2 className="text-xl font-bold text-gray-900 mb-3">Address</h2>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {property.address}
+                </p>
               </div>
 
               {property.user && (
-                <div className="border-t border-gray-200 pt-6 mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-3">Seller Information</h2>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-600">Name</div>
-                        <div className="font-medium">
-                          {property.user.firstName} {property.user.lastName}
+                <div className="border-t border-gray-100 pt-6 mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Seller Information</h2>
+                  <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border border-emerald-100">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-sm text-gray-500">Name</div>
+                          <div className="font-semibold text-gray-900">
+                            {property.user.firstName} {property.user.lastName}
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Contact</div>
-                        <div className="font-medium">{property.user.contactNo}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-sm text-gray-500">Contact</div>
+                          <div className="font-semibold text-gray-900">{property.user.contactNo}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Email</div>
-                        <div className="font-medium">{property.user.email}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-sm text-gray-500">Email</div>
+                          <div className="font-semibold text-gray-900">{property.user.email}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Purchase Success Message */}
               {purchaseSuccess && (
-                <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-center animate-fade-in">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   Property purchased successfully!
                 </div>
               )}
 
-              {/* Buy Now Button */}
               {canBuy && (
-                <div className="border-t border-gray-200 pt-6">
+                <div className="border-t border-gray-100 pt-6">
                   <button
                     onClick={() => setIsBuyDialogOpen(true)}
-                    className="w-full sm:w-auto px-8 py-3 border border-transparent rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center"
+                    className="w-full sm:w-auto px-8 py-4 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all btn-hover shadow-lg shadow-emerald-600/25 flex items-center justify-center"
                   >
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

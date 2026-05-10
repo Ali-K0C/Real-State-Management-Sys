@@ -5,7 +5,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import RentalListingCard from '@/components/rental/RentalListingCard';
 import { rentalApi } from '@/lib/rental-api';
 import type { RentalListing } from '@/types';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { PropertyCardSkeletonGrid } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,18 +15,15 @@ export default function RentalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Filters
   const [location, setLocation] = useState('');
   const [minRent, setMinRent] = useState('');
   const [maxRent, setMaxRent] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   
-  // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 8;
   
-  // Filter trigger state to avoid stale closure issues
   const [filterTrigger, setFilterTrigger] = useState(0);
 
   const fetchListings = useCallback(async () => {
@@ -77,24 +74,25 @@ export default function RentalsPage() {
     setFilterTrigger(t => t + 1);
   };
 
+  const hasActiveFilters = location || minRent || maxRent || bedrooms;
+
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+        <div className="mb-8 animate-fade-in-down">
+          <h1 className="text-3xl font-bold text-gray-900">
             Rental Properties
           </h1>
-          <p className="text-muted-foreground">
-            Find your perfect rental home
+          <p className="mt-2 text-gray-500">
+            Find your perfect rental home from our available listings
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-border mb-8">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8 shadow-sm animate-fade-in-up">
           <form onSubmit={handleFilter} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                   Location
                 </label>
                 <Input
@@ -103,11 +101,12 @@ export default function RentalsPage() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="City or area"
+                  className="h-11"
                 />
               </div>
               
               <div>
-                <label htmlFor="minRent" className="block text-sm font-medium text-foreground mb-1">
+                <label htmlFor="minRent" className="block text-sm font-medium text-gray-700 mb-1">
                   Min Rent (Rs)
                 </label>
                 <Input
@@ -116,11 +115,12 @@ export default function RentalsPage() {
                   value={minRent}
                   onChange={(e) => setMinRent(e.target.value)}
                   placeholder="Min"
+                  className="h-11"
                 />
               </div>
               
               <div>
-                <label htmlFor="maxRent" className="block text-sm font-medium text-foreground mb-1">
+                <label htmlFor="maxRent" className="block text-sm font-medium text-gray-700 mb-1">
                   Max Rent (Rs)
                 </label>
                 <Input
@@ -129,18 +129,19 @@ export default function RentalsPage() {
                   value={maxRent}
                   onChange={(e) => setMaxRent(e.target.value)}
                   placeholder="Max"
+                  className="h-11"
                 />
               </div>
               
               <div>
-                <label htmlFor="bedrooms" className="block text-sm font-medium text-foreground mb-1">
+                <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700 mb-1">
                   Bedrooms
                 </label>
                 <select
                   id="bedrooms"
                   value={bedrooms}
                   onChange={(e) => setBedrooms(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 >
                   <option value="">Any</option>
                   <option value="1">1+</option>
@@ -152,58 +153,73 @@ export default function RentalsPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit">
+            <div className="flex gap-3 pt-2">
+              <Button 
+                type="submit"
+                className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/25 btn-hover"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
                 Apply Filters
               </Button>
-              <Button type="button" variant="secondary" onClick={clearFilters}>
-                Clear
-              </Button>
+              {hasActiveFilters && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={clearFilters}
+                  className="border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+                >
+                  Clear All
+                </Button>
+              )}
             </div>
           </form>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-fade-in">
             {error}
           </div>
         )}
 
-        {/* Loading State */}
         {loading ? (
-          <LoadingSpinner />
+          <PropertyCardSkeletonGrid count={8} />
         ) : listings.length === 0 ? (
-          <EmptyState 
-            title="No rental listings found" 
-            message="Try adjusting your filters"
-          />
+          <div className="animate-fade-in">
+            <EmptyState 
+              title="No rental listings found" 
+              message="Try adjusting your filters to find more properties"
+            />
+          </div>
         ) : (
           <>
-            {/* Listings Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-              {listings.map((listing) => (
-                <RentalListingCard key={listing.id} listing={listing} />
+              {listings.map((listing, index) => (
+                <div key={listing.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 8)}`}>
+                  <RentalListingCard listing={listing} />
+                </div>
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2">
+              <div className="flex justify-center items-center space-x-2 animate-fade-in-up">
                 <Button
                   variant="outline"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
+                  className="border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
                 >
                   Previous
                 </Button>
-                <span className="px-4 py-2 text-muted-foreground">
-                  Page {page} of {totalPages}
+                <span className="px-4 py-2 text-gray-500 text-sm">
+                  Page <span className="font-medium text-gray-900">{page}</span> of <span className="font-medium text-gray-900">{totalPages}</span>
                 </span>
                 <Button
                   variant="outline"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
+                  className="border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
                 >
                   Next
                 </Button>
